@@ -76,9 +76,7 @@ public class AttackUnits {
 	}
 	public static void angreifen()
 	{
-		Iterator<Unit> iter = getMarines().iterator();
-		
-		for(Unit aUnit : getMarines())
+		for(Unit aUnit : attackMarines())
 		{
 			if(aUnit.canAttack())
 			{

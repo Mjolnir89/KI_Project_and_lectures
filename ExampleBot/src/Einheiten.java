@@ -153,7 +153,7 @@ public class Einheiten {
 	}
 	static Unit scout=null;
 	static Position enemyBase=null;
-	public static void scout()
+	/*public static void scout()
 	{
 		BaseLocation unexploredLocation=null;
 		for(BaseLocation aLocation: BWTA.getStartLocations())
@@ -176,9 +176,11 @@ public class Einheiten {
 		}
 		if(scout!=null && unexploredLocation !=null && scout.isIdle())
 		{
-			scout.attack(unexploredLocation.getPosition());
+			scout.move(unexploredLocation.getPosition());
+			
 		}		
 	}
+	*/
 	private static List<Unit> arbeiter = new ArrayList<>();
 	public static void bekommeAlleArbeiter()
 	{
@@ -186,27 +188,33 @@ public class Einheiten {
 		
 		for(Unit aUnit:Core.selbst().getUnits())
 		{
-			if(aUnit.getType() == UnitType.Terran_SCV && aUnit.getHitPoints()>=1)
+			if((aUnit.getType() == UnitType.Terran_SCV) ||
+			(aUnit.getType()== UnitType.Protoss_Probe))
 			{
 				bauer = aUnit;
 				arbeiter.add(bauer);
+				Buildings.delaytimer(120);
 			}
 		}
-		Buildings.delaytimer(60);
+		
 	}
-	static Unit bauer=null;
+	static Unit bauer = null;
+	static Unit bauer2 = null;
 	public static Unit getscv(UnitType geb)
 	{
-		Iterator<Unit> iter = getArbeiter().iterator();
-		
-		while(iter.hasNext())
+		bauer = arbeiter.get(1);
+		/*
+		for(Unit aUnit: arbeiter)
 		{
-			bauer = iter.next();
-			if((bauer.getType() == geb.whatBuilds().first) || bauer.isIdle())
+			if(aUnit != null && aUnit.isIdle() || aUnit.isGatheringMinerals())
 			{
+				bauer = aUnit;
+			}
+			if(bauer != null)
 				break;
-			}		
-		}		
+			
+		}
+		*/
 		return bauer;
 	}
 	

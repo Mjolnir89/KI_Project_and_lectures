@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import bwapi.Order;
 import bwapi.Position;
 import bwapi.TechType;
 import bwapi.TilePosition;
@@ -117,59 +118,74 @@ public class Buildings {
 	}
 
 	private static List<UnitType> gebaude = new ArrayList<>();
-	public static void listBuilding(UnitType geb)
-	{				
-		getGebaude().add(geb);			
-	}
-
-	private static UnitType building=null;
-	public static UnitType getNextBuilding()
+	
+	public static int getCurrentMinerals()
 	{
-		Iterator<UnitType> iter = getGebaude().iterator();
+		int reservedMinerals=0;
 		
-		while(iter.hasNext() )
+		for(UnitType aBuilding: gebaude)
 		{
-			building = iter.next();
-			if(building!=null)
-			{
-				break;
-			}
-			
+			reservedMinerals += aBuilding.mineralPrice();
 		}
-		return building;
+		return Core.selbst().minerals() - reservedMinerals;
 	}
 
-
-
-	public static List<UnitType> getGebaude() {
-		return gebaude;
-	}
-	public static void setGebaude(List<UnitType> gebaude) {
-		Buildings.gebaude = gebaude;
-	}
-	public static boolean baueGeb(UnitType geb)
+	public static boolean baueGeb(int nummer)
 	{
-		Unit bauer = Einheiten.getscv(geb);
+		UnitType geb = Core.buildings.get(nummer);
+		Unit bauer = Einheiten.getArbeiter().get(1);
+		Unit bauer2 = Einheiten.getArbeiter().get(2);
 		TilePosition buildtile= Mapping.getnext(geb);
-
 		if(!geb.isBuilding() 
 		|| geb.mineralPrice()> Core.selbst().minerals()
 		|| geb.gasPrice() > Core.selbst().gas())
 		{
 			return false;
-		}		
-		if(buildtile!=null)
-		{
-			bauer.build(geb, buildtile);
 		}
-		
-		
-		
+		if(bauer.getOrder() != Order.PlaceBuilding)
+		{
+			startetBuilding = false;
+		}
+		else
+		{
+			startetBuilding = true;
+		}
+			
+		if(buildtile!=null )
+		{	
+			if(nummer==0)
+				bauer.build(geb, buildtile);
+			else if(nummer==1)
+				bauer2.build(geb,buildtile);
+		}
+
 		return false;
 	}
+	static boolean startetBuilding=false;
 	
+	public static boolean startProgress(Unit unit)
+	{
+		if(unit.getOrder() == Order.PlaceBuilding)
+		{
+			return true;
+		}
+		else return false;
+	}
 
-		
+	public static void test()
+	{	
+		for(Unit vUnit : Core.selbst().getUnits())
+		{
+			if(vUnit.getType() == UnitType.Terran_Marine
+			&& !vUnit.isTraining()
+			&& vUnit.isIdle())
+			{
+				vUnit.move(Mapping.chokePoint());
+			}
+		}
+	
+	}
+
 	public static boolean sindkeineresindernaehe(Position position)
 	{
 		for(Unit einheit : Core.Spiel().getUnitsInRadius(position, 3*32))

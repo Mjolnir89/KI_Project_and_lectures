@@ -12,6 +12,7 @@ import bwapi.TilePosition;
 import bwapi.UnitType;
 import bwapi.Position;
 import bwta.BWTA;
+import bwta.Chokepoint;
 public class Mapping {
 
 	public static void reset()
@@ -73,8 +74,6 @@ public class Mapping {
 	private static List<TilePosition> buildingPosition = new ArrayList<>();
 	public static void mapToListChange(Map<TilePosition,UnitType> mp)
 	{
-		
-		Iterator<Entry<TilePosition, UnitType>> iter = mp.entrySet().iterator();
 		TilePosition center = Buildings.Center();
 		double distance =0;
 		for(TilePosition key : mp.keySet())
@@ -114,7 +113,21 @@ public class Mapping {
 	public static void setBuilder(List<TilePosition> builder) {
 		Mapping.buildingPosition = builder;
 	}
-	
+	public static Position chokePoint()
+	{
+		TilePosition start = Buildings.Center();
+		TilePosition sammeln=null;
+		for(Chokepoint choke : BWTA.getChokepoints())
+		{
+			//System.out.println(choke.getCenter().toTilePosition());
+			if(choke.getCenter().toTilePosition().getDistance(start.getX(), start.getY())<20)
+			{
+				sammeln = choke.getCenter().toTilePosition();
+				//System.out.print(choke.getCenter().toTilePosition());
+			}
+		}
+		return sammeln.toPosition();
+	}
 		
 	}
 

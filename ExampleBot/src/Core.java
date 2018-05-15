@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.List;
 
 import bwapi.DefaultBWListener;
 import bwapi.Game;
@@ -53,10 +54,12 @@ public class Core extends DefaultBWListener
 		Spiel().setLocalSpeed(20);
 		defineRace();
 		Mapping.reset();
-		Mapping.startscan(barrack);
+		Mapping.startscan(supply);
 		Einheiten.bekommeAlleArbeiter();
-
+		fillBuildings();
 	}
+
+
 	public void onFrame()
 	{
 		try{
@@ -66,15 +69,8 @@ public class Core extends DefaultBWListener
 			Mapping.mapToListChange(Mapping.getBauPosition());
 			//Mapping.listeAufraemen(supply);
 			Einheiten.bekommeAlleArbeiter();
-			
 			testbuild2();
-			AttackUnits.AttackUnitList();
-			Einheiten.attackFirstUnit();
-			Buildings.produziereEinheit(UnitType.Terran_Marine);
-			if(testbuild2())
-			{
-				System.out.println("build finished");
-			}
+			//Einheiten.attackFirstUnit();
 			
 		}catch(Exception e)
 		{
@@ -85,120 +81,94 @@ public class Core extends DefaultBWListener
 	{
 		new Core().run();
 	}
-
-
-
-	public void bot()
+	static List<UnitType> buildings = new ArrayList<>();
+	public static void fillBuildings()
 	{
-		if(!Buildings.isinproduction(bauer)
-		&& selbst().allUnitCount(bauer)<20)
-		{
-			Buildings.produziereEinheit(bauer);
-		}
-		if(Einheiten.getArbeiter().size()>9
-		&& selbst().allUnitCount(supply)<1)
-		{
-			Buildings.baueGeb(supply);
-		}
-		if(Einheiten.getArbeiter().size()>=11
-		&& selbst().allUnitCount(barrack)<1)
-		{
-			Buildings.baueGeb(barrack);
-		}
-		if(selbst().allUnitCount(barrack)>=1
-		&& selbst().allUnitCount(supply)<=3)
-		{
-			Buildings.baueGeb(supply);
-		}
-		
-		if(selbst().allUnitCount(supply)>=3
-		&& selbst().allUnitCount(barrack)<=3
-		&& !Buildings.isinproduction(barrack))
-		{
-			Buildings.baueGeb(barrack);
-		}
-		
-		
-		/*
-		if(selbst().allUnitCount(UnitType.Terran_Marine)>=10)
-		{
-			for(Unit aUnit : AttackUnits.attackMarines())
-			{
-				if(aUnit != null)
-				{
-					aUnit.attack(Einheiten.enemybase);
-				}
-			}
-			
-		}
-		*/
-		//if(selbst().allUnitCount(UnitType.Terran_Marine)>=1)
-		//{
-		//	Einheiten.scout();
-		//}
-		
+		buildings.add(0, supply);
+		buildings.add(1, barrack);
+		buildings.add(2, supply);
+		buildings.add(3, barrack);
+		buildings.add(4, supply);
+		buildings.add(5, supply);
+		buildings.add(6, barrack);
+		buildings.add(7, supply);
 	}
+		
+
 	
+	public static List<UnitType> getBuildings() {
+		return buildings;
+	}
+
+	public static void setBuildings(List<UnitType> buildings) {
+		Core.buildings = buildings;
+	}
+
 	public  boolean testbuild2()
 	{
+		
 		if(!Buildings.isinproduction(bauer)
-		&& selbst().allUnitCount(bauer)<20)
+		&& selbst().allUnitCount(bauer)<8)
 		{
 			Buildings.produziereEinheit(bauer);
 		}
-		
-		if((selbst().allUnitCount(bauer)>=8)
-		&&(selbst().allUnitCount(supply)<1)
-		&&(!Buildings.isinproduction(supply)))
+		if(selbst().allUnitCount(bauer)>=8
+		&& selbst().allUnitCount(supply)<1)
 		{
-			Buildings.baueGeb(supply);
-		}		
-		else if((selbst().allUnitCount(bauer)>=11)
-		&& (!Buildings.isinproduction(barrack))
-		&& (selbst().allUnitCount(barrack)<1))
-		{			
-			Buildings.baueGeb(barrack);		
+			Buildings.baueGeb(0);
 		}
-		else if((selbst().allUnitCount(supply)<=2)
-		&&(!Buildings.isinproduction(supply))
-		&& (selbst().allUnitCount(barrack)==1))
+		if(selbst().allUnitCount(supply)==1
+		&& !Buildings.isinproduction(bauer)
+		&& selbst().allUnitCount(bauer)<=12)
 		{
-			Buildings.baueGeb(supply);
+			Buildings.produziereEinheit(bauer);
 		}
-		else if((selbst().allUnitCount(supply)>=2)
-		&& selbst().allUnitCount(barrack)<2)
+		if(selbst().allUnitCount(supply)==1
+		&& selbst().allUnitCount(bauer)>=9
+		&& selbst().allUnitCount(barrack)<=1)
 		{
-			Buildings.baueGeb(barrack);
+			Buildings.baueGeb(1);	
 		}
-		else if((selbst().allUnitCount(supply)<=8)
-		&& selbst().allUnitCount(barrack)>=2)
+		if(selbst().allUnitCount(barrack)==1
+		&& selbst().allUnitCount(supply)<=8)
 		{
-			Buildings.baueGeb(supply);
+			Buildings.baueGeb(0);
 		}
-		else if((selbst().allUnitCount(supply)==8)
-		&& selbst().allUnitCount(barrack)>=2)
+		if(selbst().allUnitCount(barrack)<=3
+		&& selbst().allUnitCount(supply)==3)
 		{
-			return true;
+			Buildings.baueGeb(1);
+		}
+		if(selbst().allUnitCount(barrack)==1
+		&& selbst().allUnitCount(bauer)<=18)
+		{
+			Buildings.produziereEinheit(bauer);
+		}
+		if(selbst().allUnitCount(barrack)>1
+		&& selbst().allUnitCount(supply)<=10)
+		{
+			Buildings.baueGeb(0);
 		}
 		if(!Buildings.isinproduction(UnitType.Terran_Marine))
 		{
 			Buildings.produziereEinheit(UnitType.Terran_Marine);
 		}
-		if(AttackUnits.getMarines().size()>=1 && Einheiten.enemyBase == null)
+		Buildings.test();
+		if(selbst().allUnitCount(UnitType.Terran_Marine)>=6)
 		{
-			Einheiten.scout();
-		}
-		if(AttackUnits.getMarines().size()>=10)
-		{
-			AttackUnits.angreifen();
+			//AttackUnits.AttackUnitList();
+			//for(Unit aUnit : AttackUnits.getMarines())
+			//{
+			//	aUnit.attack(Einheiten.enemyBase);
+			//}	
 		}
 		return false;
 	
 	}
-	
-	private UnitType supply = null;
-	private UnitType barrack=null;
-	private UnitType bauer = null;
+
+	private static UnitType supply = null;
+	private static UnitType barrack=null;
+	private static UnitType bauer = null;
 	private void defineRace()
 	{
 		if(selbst().getRace() == Race.Zerg)
@@ -216,6 +186,8 @@ public class Core extends DefaultBWListener
 		else
 		{
 			supply = UnitType.Protoss_Pylon;
+			barrack = UnitType.Protoss_Gateway;
+			bauer = UnitType.Protoss_Probe;
 		}
 			
 	}
