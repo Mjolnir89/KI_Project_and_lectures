@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -9,16 +10,17 @@ import java.util.Map.Entry;
 import bwapi.AbstractPoint;
 import bwapi.Region;
 import bwapi.TilePosition;
+import bwapi.Unit;
 import bwapi.UnitType;
 import bwapi.Position;
 import bwta.BWTA;
+import bwta.BaseLocation;
 import bwta.Chokepoint;
 public class Mapping {
 
 	public static void reset()
 	{
 		bauPosition.clear();
-		buildingPosition.clear();
 		
 	}
 	private static Map<TilePosition,UnitType> bauPosition=new HashMap<>();
@@ -71,64 +73,104 @@ public class Mapping {
 		}
 		Buildings.delaytimer(6000);
 	}
-	private static List<TilePosition> buildingPosition = new ArrayList<>();
-	public static void mapToListChange(Map<TilePosition,UnitType> mp)
+	private static Map<Double,TilePosition> buildingPosition = new HashMap<>();
+	private static List<TilePosition> buildingPosition2 = new ArrayList<>();
+	public static void mapToListChange()
 	{
+		Map<TilePosition,UnitType> map = bauPosition;
 		TilePosition center = Buildings.Center();
 		double distance =0;
-		for(TilePosition key : mp.keySet())
+		for(TilePosition key : map.keySet())
 		{
 			if(center.getDistance(key)>0)
 			{
-				distance= center.getDistance(key);				
-				buildingPosition.add(key);
+				distance= center.getDistance(key);
+				
+				buildingPosition.put(distance, key);
 			}
 		}
+		
+		//System.out.println(buildingPosition);
+		
+		//System.out.println(center.getDistance(buildingPosition.get(2)));
 		Buildings.delaytimer(500);
+	}
+	public static void sort()
+	{
+		Map<Double, TilePosition> map = buildingPosition;
+		Double distanceMaximum = 20.0;
+		for(Double distance : map.keySet())
+		{
+			if(distance<distanceMaximum)
+			{
+				buildingPosition2.add(map.get(distance));
+			}
+		}
+		System.out.print(buildingPosition2);
 	}
 	private static TilePosition buildTile =null;
 	public static TilePosition getnext(UnitType geb)
 	{
-		Iterator<TilePosition> iter = getBuilder().iterator();
-		
-		while(iter.hasNext() )
+		Map<Double, TilePosition> test = buildingPosition;
+		for(Double distance: test.keySet())
 		{
-			buildTile = (TilePosition) iter.next();
-			if(Core.Spiel().canBuildHere(buildTile, geb) && Core.Spiel().isExplored(buildTile))
+			buildTile = test.get(distance);
+			if(Core.Spiel().canBuildHere(buildTile, geb) && Core.Spiel().isExplored(buildTile) && distance<10)
 			{
-				break;
+					break;
 			}
-			else
-			{
-				getBuilder().remove(iter);
-			}
+			
+			
 		}
-		
-		return buildTile;	
+		return buildTile;
+			
 	}
 
-	public static List<TilePosition> getBuilder() {
-		return buildingPosition;
-	}
-	public static void setBuilder(List<TilePosition> builder) {
-		Mapping.buildingPosition = builder;
-	}
+	
 	public static Position chokePoint()
 	{
 		TilePosition start = Buildings.Center();
 		TilePosition sammeln=null;
 		for(Chokepoint choke : BWTA.getChokepoints())
 		{
-			//System.out.println(choke.getCenter().toTilePosition());
-			if(choke.getCenter().toTilePosition().getDistance(start.getX(), start.getY())<20)
+			if(choke.getCenter().toTilePosition().getDistance(start.getX(), start.getY())<30)
 			{
 				sammeln = choke.getCenter().toTilePosition();
-				//System.out.print(choke.getCenter().toTilePosition());
+				
 			}
 		}
-		return sammeln.toPosition();
+		if(sammeln !=null)
+			return sammeln.toPosition();
+		else return start.toPosition();
 	}
+	
+	static Position enemyBase=null;
+	
+	public static void scout()
+	{
+		Unit scout = Einheiten.getArbeiter().get(5);
+		BaseLocation unexploredLocation=null;
+		
+		for(BaseLocation aLocation: BWTA.getStartLocations())
+		{
+			if(!Core.Spiel().isExplored(aLocation.getTilePosition()))
+			{
+				unexploredLocation=aLocation;		
+				enemyBase=aLocation.getPosition();
+			}
+		}	
+		if(scout!=null && unexploredLocation !=null && !scout.attack(unexploredLocation.getPosition()))
+		{
+			System.out.println("Scout");
+			scout.attack(unexploredLocation.getPosition());	
+		}
 		
 	}
+	
+	
+	
+	
+		
+}
 
 

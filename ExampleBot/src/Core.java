@@ -53,10 +53,12 @@ public class Core extends DefaultBWListener
 		Spiel().enableFlag(1);
 		Spiel().setLocalSpeed(20);
 		defineRace();
-		Mapping.reset();
+		//Mapping.reset();
 		Mapping.startscan(supply);
 		Einheiten.bekommeAlleArbeiter();
 		fillBuildings();
+		//Mapping.sortbuildTileList();
+
 	}
 
 
@@ -66,11 +68,13 @@ public class Core extends DefaultBWListener
 			Buildings.produziereEinheit();
 			Einheiten.gatherMinerals();
 			Einheiten.gatherGas();			
-			Mapping.mapToListChange(Mapping.getBauPosition());
+			Mapping.mapToListChange();
 			//Mapping.listeAufraemen(supply);
 			Einheiten.bekommeAlleArbeiter();
 			testbuild2();
+			
 			//Einheiten.attackFirstUnit();
+			AttackUnits.AttackUnitList();
 			
 		}catch(Exception e)
 		{
@@ -86,12 +90,7 @@ public class Core extends DefaultBWListener
 	{
 		buildings.add(0, supply);
 		buildings.add(1, barrack);
-		buildings.add(2, supply);
-		buildings.add(3, barrack);
-		buildings.add(4, supply);
-		buildings.add(5, supply);
-		buildings.add(6, barrack);
-		buildings.add(7, supply);
+		buildings.add(2, UnitType.Terran_Refinery);
 	}
 		
 
@@ -115,7 +114,7 @@ public class Core extends DefaultBWListener
 		if(selbst().allUnitCount(bauer)>=8
 		&& selbst().allUnitCount(supply)<1)
 		{
-			Buildings.baueGeb(0);
+			Buildings.baueGeb(0);			
 		}
 		if(selbst().allUnitCount(supply)==1
 		&& !Buildings.isinproduction(bauer)
@@ -134,8 +133,8 @@ public class Core extends DefaultBWListener
 		{
 			Buildings.baueGeb(0);
 		}
-		if(selbst().allUnitCount(barrack)<=3
-		&& selbst().allUnitCount(supply)==3)
+		if(selbst().allUnitCount(barrack)<3
+		&& selbst().allUnitCount(supply)>=3)
 		{
 			Buildings.baueGeb(1);
 		}
@@ -144,24 +143,28 @@ public class Core extends DefaultBWListener
 		{
 			Buildings.produziereEinheit(bauer);
 		}
-		if(selbst().allUnitCount(barrack)>1
-		&& selbst().allUnitCount(supply)<=10)
-		{
-			Buildings.baueGeb(0);
-		}
 		if(!Buildings.isinproduction(UnitType.Terran_Marine))
 		{
 			Buildings.produziereEinheit(UnitType.Terran_Marine);
 		}
 		Buildings.test();
-		if(selbst().allUnitCount(UnitType.Terran_Marine)>=6)
+		
+		if(selbst().allUnitCount(barrack)>=1
+		&& selbst().allUnitCount(barrack)<2)
 		{
-			//AttackUnits.AttackUnitList();
-			//for(Unit aUnit : AttackUnits.getMarines())
-			//{
-			//	aUnit.attack(Einheiten.enemyBase);
-			//}	
+			Mapping.scout();		
 		}
+		if(selbst().allUnitCount(barrack)>=3)
+		{
+			Buildings.baueGeb(2);
+		}
+		
+		
+		if(selbst().allUnitCount(UnitType.Terran_Marine)>6)
+		{
+			AttackUnits.angreifen();
+		}
+		
 		return false;
 	
 	}

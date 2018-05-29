@@ -2,6 +2,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import bwapi.Position;
 import bwapi.Unit;
 import bwapi.UnitType;
 
@@ -61,12 +62,17 @@ public class AttackUnits {
 	private static List<Unit> Marines = new ArrayList<>();
 	public static  void AttackUnitList()
 	{
+		Position choke = Mapping.chokePoint();
+		
 		for(Unit aUnit: Core.selbst().getUnits())
 		{
 			if(aUnit.isIdle() && (aUnit.getType() == UnitType.Terran_Marine) 
 			&& !aUnit.isTraining())
 			{
 				getMarines().add(aUnit);
+				if(aUnit.getPosition().getDistance(choke.getX(), choke.getY())>=2)
+					aUnit.move(choke);
+					
 			}
 			if(aUnit.getHitPoints()<=0)
 			{
@@ -74,16 +80,18 @@ public class AttackUnits {
 			}
 		}
 	}
+	
 	public static void angreifen()
 	{
-		for(Unit aUnit : attackMarines())
+		for(Unit aUnit : getMarines())
 		{
-			if(aUnit.canAttack())
+			if(aUnit.canAttack() && !aUnit.isTraining())
 			{
-				aUnit.attack(Einheiten.enemyBase);
+				aUnit.attack(Mapping.enemyBase);
 			}
 		}
 	}
+	
 	public static List<Unit> getMarines() {
 		return Marines;
 	}

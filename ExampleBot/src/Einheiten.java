@@ -2,6 +2,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import bwapi.Order;
 import bwapi.Position;
 import bwapi.TilePosition;
 import bwapi.Unit;
@@ -116,6 +117,7 @@ public class Einheiten {
 							if(miniralkristall == null
 							|| miniralkristall.getDistance(einheit)> Potentialminiralkristall.getDistance(einheit))
 							{
+								System.out.println(Potentialminiralkristall.getPosition());
 								miniralkristall= Potentialminiralkristall;
 							}
 						}
@@ -123,7 +125,7 @@ public class Einheiten {
 				}
 				if(miniralkristall != null)
 				{
-					einheit.gather(miniralkristall);
+					einheit.gather(miniralkristall);				
 				}
 						
 			}
@@ -151,36 +153,8 @@ public class Einheiten {
 			}
 		}
 	}
-	static Unit scout=null;
-	static Position enemyBase=null;
-	/*public static void scout()
-	{
-		BaseLocation unexploredLocation=null;
-		for(BaseLocation aLocation: BWTA.getStartLocations())
-		{
-			if(!Core.Spiel().isExplored(aLocation.getTilePosition()))
-			{
-				unexploredLocation=aLocation;		
-				enemyBase=aLocation.getPosition();
-			}
-		}
-		if(scout== null || scout.getHitPoints()<=0)
-		{
-			for(Unit aUnit: Core.selbst().getUnits())
-			{
-				if(aUnit.isIdle() && aUnit.getType() == UnitType.Terran_Marine)
-				{
-					scout=aUnit;
-				}
-			}
-		}
-		if(scout!=null && unexploredLocation !=null && scout.isIdle())
-		{
-			scout.move(unexploredLocation.getPosition());
-			
-		}		
-	}
-	*/
+	
+	
 	private static List<Unit> arbeiter = new ArrayList<>();
 	public static void bekommeAlleArbeiter()
 	{
@@ -200,23 +174,7 @@ public class Einheiten {
 	}
 	static Unit bauer = null;
 	static Unit bauer2 = null;
-	public static Unit getscv(UnitType geb)
-	{
-		bauer = arbeiter.get(1);
-		/*
-		for(Unit aUnit: arbeiter)
-		{
-			if(aUnit != null && aUnit.isIdle() || aUnit.isGatheringMinerals())
-			{
-				bauer = aUnit;
-			}
-			if(bauer != null)
-				break;
-			
-		}
-		*/
-		return bauer;
-	}
+
 	
 	public static List<Unit> getArbeiter() {
 		return arbeiter;

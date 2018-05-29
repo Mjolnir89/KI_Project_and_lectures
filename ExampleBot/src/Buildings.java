@@ -142,21 +142,33 @@ public class Buildings {
 		{
 			return false;
 		}
-		if(bauer.getOrder() != Order.PlaceBuilding)
-		{
-			startetBuilding = false;
-		}
-		else
-		{
-			startetBuilding = true;
-		}
+		
 			
 		if(buildtile!=null )
 		{	
-			if(nummer==0)
+			if(nummer==0 && bauer.getOrder() != Order.PlaceBuilding)
+			{
+				
+				System.out.println(bauer.getID()+"\t"+buildtile+"\t"+geb+"\t"+Center().getDistance(buildtile));
+				//bauer.move(buildtile.toPosition());
 				bauer.build(geb, buildtile);
-			else if(nummer==1)
+			}
+				
+			else if(nummer==1 && bauer.getOrder() != Order.PlaceBuilding)
+			{
+				System.out.println(bauer2.getID()+"\t"+buildtile+"\t"+geb+"\t"+Center().getDistance(buildtile));
 				bauer2.build(geb,buildtile);
+			}	
+		}
+		if(nummer == 2)
+		{
+			for(Unit aUnit: Core.Spiel().neutral().getUnits())
+			{
+				if(aUnit.getType() == UnitType.Resource_Vespene_Geyser)
+				{
+					bauer.build(geb, aUnit.getTilePosition());
+				}
+			}
 		}
 
 		return false;
@@ -174,11 +186,13 @@ public class Buildings {
 
 	public static void test()
 	{	
-		for(Unit vUnit : Core.selbst().getUnits())
+		Position choke = Mapping.chokePoint();
+		for(Unit vUnit : AttackUnits.getMarines())
 		{
 			if(vUnit.getType() == UnitType.Terran_Marine
 			&& !vUnit.isTraining()
-			&& vUnit.isIdle())
+			&& vUnit.isIdle()
+			&& vUnit.getPosition().getDistance(choke.getX(), choke.getY())<=2)
 			{
 				vUnit.move(Mapping.chokePoint());
 			}
