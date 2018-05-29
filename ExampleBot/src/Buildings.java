@@ -142,21 +142,20 @@ public class Buildings {
 		{
 			return false;
 		}
-		
 			
 		if(buildtile!=null )
 		{	
 			if(nummer==0 && bauer.getOrder() != Order.PlaceBuilding)
 			{
 				
-				System.out.println(bauer.getID()+"\t"+buildtile+"\t"+geb+"\t"+Center().getDistance(buildtile));
+				//System.out.println(bauer.getID()+"\t"+buildtile+"\t"+geb+"\t"+Center().getDistance(buildtile));
 				//bauer.move(buildtile.toPosition());
 				bauer.build(geb, buildtile);
 			}
 				
 			else if(nummer==1 && bauer.getOrder() != Order.PlaceBuilding)
 			{
-				System.out.println(bauer2.getID()+"\t"+buildtile+"\t"+geb+"\t"+Center().getDistance(buildtile));
+				//System.out.println(bauer2.getID()+"\t"+buildtile+"\t"+geb+"\t"+Center().getDistance(buildtile));
 				bauer2.build(geb,buildtile);
 			}	
 		}

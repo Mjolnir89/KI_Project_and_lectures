@@ -93,7 +93,13 @@ public class Core extends DefaultBWListener
 		buildings.add(2, UnitType.Terran_Refinery);
 	}
 		
-
+	@Override
+	public void onUnitDestroy(Unit aUnit) {
+	
+		if(Mapping.scout != null && aUnit.getID() == Mapping.scout.getID()){
+			Mapping.scout = null;
+		}
+	}
 	
 	public static List<UnitType> getBuildings() {
 		return buildings;
@@ -149,8 +155,8 @@ public class Core extends DefaultBWListener
 		}
 		Buildings.test();
 		
-		if(selbst().allUnitCount(barrack)>=1
-		&& selbst().allUnitCount(barrack)<2)
+		if(selbst().allUnitCount(barrack)>1
+		&& selbst().allUnitCount(barrack)<=2)
 		{
 			Mapping.scout();		
 		}

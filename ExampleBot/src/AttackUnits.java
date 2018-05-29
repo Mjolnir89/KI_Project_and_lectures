@@ -67,16 +67,17 @@ public class AttackUnits {
 		for(Unit aUnit: Core.selbst().getUnits())
 		{
 			if(aUnit.isIdle() && (aUnit.getType() == UnitType.Terran_Marine) 
-			&& !aUnit.isTraining())
+			&& !aUnit.isTraining() && !Marines.contains(aUnit))
 			{
-				getMarines().add(aUnit);
+				Marines.add(aUnit);
 				if(aUnit.getPosition().getDistance(choke.getX(), choke.getY())>=2)
 					aUnit.move(choke);
+				System.out.println(Marines);
 					
 			}
 			if(aUnit.getHitPoints()<=0)
 			{
-				getMarines().remove(aUnit);
+				Marines.remove(aUnit);
 			}
 		}
 	}
@@ -85,7 +86,7 @@ public class AttackUnits {
 	{
 		for(Unit aUnit : getMarines())
 		{
-			if(aUnit.canAttack() && !aUnit.isTraining())
+			if(aUnit.canAttack() && !aUnit.isTraining() && aUnit.isIdle())
 			{
 				aUnit.attack(Mapping.enemyBase);
 			}

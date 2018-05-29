@@ -20,7 +20,7 @@ public class Mapping {
 
 	public static void reset()
 	{
-		bauPosition.clear();
+		//bauPosition.clear();
 		
 	}
 	private static Map<TilePosition,UnitType> bauPosition=new HashMap<>();
@@ -145,10 +145,23 @@ public class Mapping {
 	}
 	
 	static Position enemyBase=null;
-	
+	static Unit scout=null;
 	public static void scout()
 	{
-		Unit scout = Einheiten.getArbeiter().get(5);
+		if( scout == null ){
+			for(Unit aUnit: Core.selbst().getUnits())
+			{
+				if(aUnit.getType()== UnitType.Terran_Marine
+				&& aUnit.isIdle())
+				{
+					scout = aUnit;
+					break;
+				}
+			}
+		}
+		if( !scout.isIdle() ){
+			return;
+		}
 		BaseLocation unexploredLocation=null;
 		
 		for(BaseLocation aLocation: BWTA.getStartLocations())
