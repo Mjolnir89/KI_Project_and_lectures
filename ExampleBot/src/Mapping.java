@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import bwapi.AbstractPoint;
+import bwapi.Color;
 import bwapi.Region;
 import bwapi.TilePosition;
 import bwapi.Unit;
@@ -45,17 +46,20 @@ public class Mapping {
 		{
 			for(int j = startY; j <= stopY;j++)
 			{
-				if(Core.Spiel().canBuildHere(new TilePosition(i,j), gebauede)
-				&& Core.Spiel().isExplored(new TilePosition(i,j))
+				
+				if(//Core.Spiel().canBuildHere(new TilePosition(i,j), gebauede)
+				 (Core.Spiel().isVisible(new TilePosition(i,j))		
+				|| Core.Spiel().isExplored(new TilePosition(i,j)))
 				&& Buildings.sindkeineresindernaehe(new TilePosition(i,j).toPosition()))
 				{
+					Core.Spiel().drawBoxMap(startX*32, startY*32, startX*32+32, startY*32+32, Color.Green);
 					bauPosition.put(new TilePosition(i,j), gebauede);
 					break;
 				}
 					
 			}	
 		}
-		Buildings.delaytimer(6000);
+		Buildings.delaytimer(600);
 	}
 	public static void listeAufraemen(UnitType gebauede)
 	{
@@ -117,9 +121,21 @@ public class Mapping {
 			buildTile = test.get(distance);
 			if(Core.Spiel().canBuildHere(buildTile, geb) && Core.Spiel().isExplored(buildTile) && distance<10)
 			{
+				System.out.println("BauPlatz1");
+				Core.Spiel().drawBoxMap(((int)buildTile.getX()*32), ((int)buildTile.getY()*32), ((int)buildTile.getX()*32+32), ((int)buildTile.getY()*32+32), Color.Green);
 					break;
 			}
-			
+			else if(Core.Spiel().canBuildHere(buildTile, geb) && Core.Spiel().isExplored(buildTile) && distance<15)
+			{
+				System.out.println("BauPlatz2");
+				Core.Spiel().drawBoxMap(((int)buildTile.getX()*32), ((int)buildTile.getY()*32), ((int)buildTile.getX()*32+32), ((int)buildTile.getY()*32+32), Color.Blue);
+					break;					
+			}
+			else
+			{
+				System.out.println(Core.Spiel().canBuildHere(buildTile, geb) + "\t" + Core.Spiel().isExplored(buildTile));
+				Core.Spiel().drawBoxMap(((int)buildTile.getX()*32), ((int)buildTile.getY()*32), ((int)buildTile.getX()*32+32), ((int)buildTile.getY()*32+32), Color.Red);
+				}
 			
 		}
 		return buildTile;
@@ -146,7 +162,7 @@ public class Mapping {
 	
 	static Position enemyBase=null;
 	static Unit scout=null;
-	public static void scout()
+	public static boolean scout()
 	{
 		if( scout == null ){
 			for(Unit aUnit: Core.selbst().getUnits())
@@ -155,12 +171,13 @@ public class Mapping {
 				&& aUnit.isIdle())
 				{
 					scout = aUnit;
+					AttackUnits.getMarines().remove(aUnit);
 					break;
 				}
 			}
 		}
 		if( !scout.isIdle() ){
-			return;
+			return false;
 		}
 		BaseLocation unexploredLocation=null;
 		
@@ -175,9 +192,10 @@ public class Mapping {
 		if(scout!=null && unexploredLocation !=null && !scout.attack(unexploredLocation.getPosition()))
 		{
 			System.out.println("Scout");
-			scout.attack(unexploredLocation.getPosition());	
+			scout.attack(unexploredLocation.getPosition());
+			return true;
 		}
-		
+		return false;
 	}
 	
 	

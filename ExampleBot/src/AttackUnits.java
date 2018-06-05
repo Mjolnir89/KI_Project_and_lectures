@@ -79,6 +79,7 @@ public class AttackUnits {
 			{
 				Marines.remove(aUnit);
 			}
+		
 		}
 	}
 	

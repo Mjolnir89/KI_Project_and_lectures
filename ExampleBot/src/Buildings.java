@@ -148,7 +148,7 @@ public class Buildings {
 			if(nummer==0 && bauer.getOrder() != Order.PlaceBuilding)
 			{
 				
-				//System.out.println(bauer.getID()+"\t"+buildtile+"\t"+geb+"\t"+Center().getDistance(buildtile));
+				System.out.println(bauer.getID()+"\t"+buildtile+"\t"+geb+"\t"+Center().getDistance(buildtile));
 				//bauer.move(buildtile.toPosition());
 				bauer.build(geb, buildtile);
 			}

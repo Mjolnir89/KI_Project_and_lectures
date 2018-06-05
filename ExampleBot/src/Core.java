@@ -1,6 +1,7 @@
 import java.util.ArrayList;
 import java.util.List;
 
+import bwapi.Color;
 import bwapi.DefaultBWListener;
 import bwapi.Game;
 import bwapi.Mirror;
@@ -72,6 +73,13 @@ public class Core extends DefaultBWListener
 			//Mapping.listeAufraemen(supply);
 			Einheiten.bekommeAlleArbeiter();
 			testbuild2();
+			if(!Mapping.getBauPosition().isEmpty())
+			{
+				for(TilePosition aPosition: Mapping.getBauPosition().keySet())
+				{
+					Core.Spiel().drawBoxMap(aPosition.getX()*32, aPosition.getY()*32, aPosition.getX()*32+32, aPosition.getY()*32+32, Color.Green);
+				}
+			}
 			
 			//Einheiten.attackFirstUnit();
 			AttackUnits.AttackUnitList();
