@@ -154,7 +154,7 @@ public class Einheiten {
 		}
 	}
 	
-	
+	//List fuer ARbeiter, die fertig produziert sind
 	private static List<Unit> arbeiter = new ArrayList<>();
 	public static void bekommeAlleArbeiter()
 	{
@@ -162,8 +162,8 @@ public class Einheiten {
 		
 		for(Unit aUnit:Core.selbst().getUnits())
 		{
-			if((aUnit.getType() == UnitType.Terran_SCV) ||
-			(aUnit.getType()== UnitType.Protoss_Probe))
+			if((aUnit.getType() == UnitType.Terran_SCV) && aUnit.isCompleted()
+			&& !arbeiter.contains(aUnit))
 			{
 				bauer = aUnit;
 				arbeiter.add(bauer);
@@ -172,9 +172,6 @@ public class Einheiten {
 		}
 		
 	}
-	static Unit bauer = null;
-	static Unit bauer2 = null;
-
 	
 	public static List<Unit> getArbeiter() {
 		return arbeiter;

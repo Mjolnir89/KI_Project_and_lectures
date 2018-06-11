@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import bwapi.Color;
 import bwapi.Order;
 import bwapi.Position;
 import bwapi.TechType;
@@ -135,7 +136,7 @@ public class Buildings {
 		UnitType geb = Core.buildings.get(nummer);
 		Unit bauer = Einheiten.getArbeiter().get(1);
 		Unit bauer2 = Einheiten.getArbeiter().get(2);
-		TilePosition buildtile= Mapping.getnext(geb);
+		TilePosition buildtile= Mapping.getNextFromList(geb);
 		if(!geb.isBuilding() 
 		|| geb.mineralPrice()> Core.selbst().minerals()
 		|| geb.gasPrice() > Core.selbst().gas())
@@ -148,12 +149,12 @@ public class Buildings {
 			if(nummer==0 && bauer.getOrder() != Order.PlaceBuilding)
 			{
 				
-				System.out.println(bauer.getID()+"\t"+buildtile+"\t"+geb+"\t"+Center().getDistance(buildtile));
+				//System.out.println(bauer.getID()+"\t"+buildtile+"\t"+geb+"\t"+Center().getDistance(buildtile));
 				//bauer.move(buildtile.toPosition());
 				bauer.build(geb, buildtile);
 			}
 				
-			else if(nummer==1 && bauer.getOrder() != Order.PlaceBuilding)
+			else if((nummer==1 || nummer==3) && bauer.getOrder() != Order.PlaceBuilding)
 			{
 				//System.out.println(bauer2.getID()+"\t"+buildtile+"\t"+geb+"\t"+Center().getDistance(buildtile));
 				bauer2.build(geb,buildtile);
@@ -186,12 +187,13 @@ public class Buildings {
 	public static void test()
 	{	
 		Position choke = Mapping.chokePoint();
+		Core.Spiel().drawBoxMap(((int)choke.getX()*32), ((int)choke.getY()*32), ((int)choke.getX()*32+32), ((int)choke.getY()*32+32), Color.Blue);
 		for(Unit vUnit : AttackUnits.getMarines())
 		{
 			if(vUnit.getType() == UnitType.Terran_Marine
 			&& !vUnit.isTraining()
 			&& vUnit.isIdle()
-			&& vUnit.getPosition().getDistance(choke.getX(), choke.getY())<=2)
+			&& vUnit.getPosition().getDistance(choke.getX(), choke.getY())>=2)
 			{
 				vUnit.move(Mapping.chokePoint());
 			}
@@ -199,7 +201,7 @@ public class Buildings {
 	
 	}
 
-	public static boolean sindkeineresindernaehe(Position position)
+	public static boolean sindKeineRessourcenInDerNaehe(Position position)
 	{
 		for(Unit einheit : Core.Spiel().getUnitsInRadius(position, 3*32))
 		{

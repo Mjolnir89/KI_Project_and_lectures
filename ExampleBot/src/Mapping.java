@@ -21,7 +21,7 @@ public class Mapping {
 
 	public static void reset()
 	{
-		//bauPosition.clear();
+		bauPosition.clear();
 		
 	}
 	private static Map<TilePosition,UnitType> bauPosition=new HashMap<>();
@@ -39,120 +39,83 @@ public class Mapping {
 	private static int startY = Core.Spiel().getRegion(1).getBoundsTop();
 	private static int stopX = Core.Spiel().getRegion(1).getBoundsRight();
 	private static int stopY = Core.Spiel().getRegion(1).getBoundsBottom();
+	public static List<TilePosition> BuildTileList = new ArrayList<>();
 	
-	public static void startscan(UnitType gebauede)
-	{		
+	public static void scan(UnitType gebauede)
+	{
 		for( int i = startX;i <= stopX;i++)
 		{
 			for(int j = startY; j <= stopY;j++)
 			{
 				
-				if(//Core.Spiel().canBuildHere(new TilePosition(i,j), gebauede)
-				 (Core.Spiel().isVisible(new TilePosition(i,j))		
-				|| Core.Spiel().isExplored(new TilePosition(i,j)))
-				&& Buildings.sindkeineresindernaehe(new TilePosition(i,j).toPosition()))
+				if(Core.Spiel().canBuildHere(new TilePosition(i,j), gebauede)
+				 &&(Core.Spiel().isVisible(new TilePosition(i,j)))	
+				 &&Core.Spiel().isExplored(new TilePosition(i,j))
+				 && Buildings.sindKeineRessourcenInDerNaehe(new TilePosition(i,j).toPosition()))
+				
 				{
-					Core.Spiel().drawBoxMap(startX*32, startY*32, startX*32+32, startY*32+32, Color.Green);
-					bauPosition.put(new TilePosition(i,j), gebauede);
-					break;
+					
+					BuildTileList.add(new TilePosition(i,j));
+					
 				}
 					
-			}	
+			}
 		}
 		Buildings.delaytimer(600);
 	}
-	public static void listeAufraemen(UnitType gebauede)
+	public static TilePosition getNextFromList(UnitType geb)
 	{
-		for( int i = startX;i <= stopX;i++)
+		TilePosition Center = Buildings.Center();
+		for(TilePosition aPosition : BuildTileList)
 		{
-			for(int j = startY; j <= stopY;j++)
+			buildTile =aPosition;
+			
+			double distance = Center.getDistance(aPosition.getX(), aPosition.getY());
+			if(Core.Spiel().canBuildHere(buildTile, geb) && Core.Spiel().isExplored(buildTile) && distance<=10)
 			{
-				if(!Core.Spiel().canBuildHere(new TilePosition(i,j), gebauede))
-				{
-					bauPosition.remove(new TilePosition(i,j));
-					break;
-				}
-				
-			}
-		}
-		Buildings.delaytimer(6000);
-	}
-	private static Map<Double,TilePosition> buildingPosition = new HashMap<>();
-	private static List<TilePosition> buildingPosition2 = new ArrayList<>();
-	public static void mapToListChange()
-	{
-		Map<TilePosition,UnitType> map = bauPosition;
-		TilePosition center = Buildings.Center();
-		double distance =0;
-		for(TilePosition key : map.keySet())
-		{
-			if(center.getDistance(key)>0)
-			{
-				distance= center.getDistance(key);
-				
-				buildingPosition.put(distance, key);
-			}
-		}
-		
-		//System.out.println(buildingPosition);
-		
-		//System.out.println(center.getDistance(buildingPosition.get(2)));
-		Buildings.delaytimer(500);
-	}
-	public static void sort()
-	{
-		Map<Double, TilePosition> map = buildingPosition;
-		Double distanceMaximum = 20.0;
-		for(Double distance : map.keySet())
-		{
-			if(distance<distanceMaximum)
-			{
-				buildingPosition2.add(map.get(distance));
-			}
-		}
-		System.out.print(buildingPosition2);
-	}
-	private static TilePosition buildTile =null;
-	public static TilePosition getnext(UnitType geb)
-	{
-		Map<Double, TilePosition> test = buildingPosition;
-		for(Double distance: test.keySet())
-		{
-			buildTile = test.get(distance);
-			if(Core.Spiel().canBuildHere(buildTile, geb) && Core.Spiel().isExplored(buildTile) && distance<10)
-			{
-				System.out.println("BauPlatz1");
+				//System.out.println("BauPlatz1");
 				Core.Spiel().drawBoxMap(((int)buildTile.getX()*32), ((int)buildTile.getY()*32), ((int)buildTile.getX()*32+32), ((int)buildTile.getY()*32+32), Color.Green);
 					break;
 			}
-			else if(Core.Spiel().canBuildHere(buildTile, geb) && Core.Spiel().isExplored(buildTile) && distance<15)
+			else if(Core.Spiel().canBuildHere(buildTile, geb) && Core.Spiel().isExplored(buildTile) && distance<15 && distance>10)
 			{
-				System.out.println("BauPlatz2");
+				//System.out.println("BauPlatz2");
 				Core.Spiel().drawBoxMap(((int)buildTile.getX()*32), ((int)buildTile.getY()*32), ((int)buildTile.getX()*32+32), ((int)buildTile.getY()*32+32), Color.Blue);
 					break;					
 			}
-			else
+			else if(Core.Spiel().canBuildHere(buildTile, geb) && Core.Spiel().isExplored(buildTile) && distance<20 && distance>=15)
 			{
-				System.out.println(Core.Spiel().canBuildHere(buildTile, geb) + "\t" + Core.Spiel().isExplored(buildTile));
+				//System.out.println(Core.Spiel().canBuildHere(buildTile, geb) + "\t" + Core.Spiel().isExplored(buildTile));
 				Core.Spiel().drawBoxMap(((int)buildTile.getX()*32), ((int)buildTile.getY()*32), ((int)buildTile.getX()*32+32), ((int)buildTile.getY()*32+32), Color.Red);
+				//testliste.remove(aPosition);
 				}
 			
 		}
 		return buildTile;
 			
 	}
+	public static List<TilePosition> getTestliste() {
+		return BuildTileList;
+	}
+	public static void setTestliste(List<TilePosition> BuildTileList) {
+		Mapping.BuildTileList = BuildTileList;
+	}
 
-	
+	private static TilePosition buildTile =null;
 	public static Position chokePoint()
 	{
 		TilePosition start = Buildings.Center();
 		TilePosition sammeln=null;
 		for(Chokepoint choke : BWTA.getChokepoints())
 		{
-			if(choke.getCenter().toTilePosition().getDistance(start.getX(), start.getY())<30)
+			if(choke.getCenter().toTilePosition().getDistance(start.getX(), start.getY())<10)
 			{
 				sammeln = choke.getCenter().toTilePosition();
 				
+			}
+			else if(choke.getCenter().toTilePosition().getDistance(start.getX(), start.getY())<20)
+			{
+				sammeln = choke.getCenter().toTilePosition();
 			}
 		}
 		if(sammeln !=null)
@@ -162,23 +125,19 @@ public class Mapping {
 	
 	static Position enemyBase=null;
 	static Unit scout=null;
-	public static boolean scout()
+	public static void scout()
 	{
 		if( scout == null ){
-			for(Unit aUnit: Core.selbst().getUnits())
-			{
+			Unit aUnit = AttackUnits.getMarines().get(0);
 				if(aUnit.getType()== UnitType.Terran_Marine
 				&& aUnit.isIdle())
 				{
 					scout = aUnit;
-					AttackUnits.getMarines().remove(aUnit);
-					break;
+										
 				}
 			}
-		}
-		if( !scout.isIdle() ){
-			return false;
-		}
+		
+		
 		BaseLocation unexploredLocation=null;
 		
 		for(BaseLocation aLocation: BWTA.getStartLocations())
@@ -192,10 +151,10 @@ public class Mapping {
 		if(scout!=null && unexploredLocation !=null && !scout.attack(unexploredLocation.getPosition()))
 		{
 			System.out.println("Scout");
-			scout.attack(unexploredLocation.getPosition());
-			return true;
+			scout.attack(unexploredLocation.getPosition());	
+			
 		}
-		return false;
+		
 	}
 	
 	

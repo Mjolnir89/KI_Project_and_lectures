@@ -55,11 +55,10 @@ public class Core extends DefaultBWListener
 		Spiel().setLocalSpeed(20);
 		defineRace();
 		//Mapping.reset();
-		Mapping.startscan(supply);
 		Einheiten.bekommeAlleArbeiter();
 		fillBuildings();
 		//Mapping.sortbuildTileList();
-
+		Mapping.scan(supply);
 	}
 
 
@@ -69,20 +68,12 @@ public class Core extends DefaultBWListener
 			Buildings.produziereEinheit();
 			Einheiten.gatherMinerals();
 			Einheiten.gatherGas();			
-			Mapping.mapToListChange();
 			//Mapping.listeAufraemen(supply);
 			Einheiten.bekommeAlleArbeiter();
 			testbuild2();
-			if(!Mapping.getBauPosition().isEmpty())
-			{
-				for(TilePosition aPosition: Mapping.getBauPosition().keySet())
-				{
-					Core.Spiel().drawBoxMap(aPosition.getX()*32, aPosition.getY()*32, aPosition.getX()*32+32, aPosition.getY()*32+32, Color.Green);
-				}
-			}
-			
 			//Einheiten.attackFirstUnit();
 			AttackUnits.AttackUnitList();
+			AttackUnits.schwadron();
 			
 		}catch(Exception e)
 		{
@@ -99,6 +90,7 @@ public class Core extends DefaultBWListener
 		buildings.add(0, supply);
 		buildings.add(1, barrack);
 		buildings.add(2, UnitType.Terran_Refinery);
+		buildings.add(3, UnitType.Terran_Academy);
 	}
 		
 	@Override
@@ -162,23 +154,23 @@ public class Core extends DefaultBWListener
 			Buildings.produziereEinheit(UnitType.Terran_Marine);
 		}
 		Buildings.test();
-		
-		if(selbst().allUnitCount(barrack)>1
-		&& selbst().allUnitCount(barrack)<=2)
+		if(!AttackUnits.getMarines().isEmpty())
 		{
-			Mapping.scout();		
+			Mapping.scout();
+		}
+		if(AttackUnits.squad.size()>5)
+		{
+			AttackUnits.attack();
 		}
 		if(selbst().allUnitCount(barrack)>=3)
 		{
 			Buildings.baueGeb(2);
 		}
-		
-		
-		if(selbst().allUnitCount(UnitType.Terran_Marine)>6)
+		if(selbst().allUnitCount(UnitType.Terran_Refinery)>=1
+		&& selbst().allUnitCount(UnitType.Terran_Academy)<1)
 		{
-			AttackUnits.angreifen();
+			Buildings.baueGeb(3);
 		}
-		
 		return false;
 	
 	}

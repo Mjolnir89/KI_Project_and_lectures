@@ -2,64 +2,19 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import bwapi.Color;
+import bwapi.Order;
 import bwapi.Position;
 import bwapi.Unit;
 import bwapi.UnitType;
+import bwapi.TilePosition;
 
-
+/*ToDo
+ * schwadron Funktion soll Marines im chokepoint zaehlen
+ */
 public class AttackUnits {
-	
-	
-	
-	public static  Unit[] attackMarines()
-	{
-		Unit Marine1=null;
-		Unit Marine2=null;
-		Unit Marine3=null;
-		Unit Marine4=null;
-		Unit Marine5=null;
-		Unit Marine6=null;
-		
-		if(Marine1== null || Marine1.getHitPoints()<=0)
-		{
-			for(Unit aUnit: Core.selbst().getUnits())
-			{
-				if(aUnit.isIdle() && (aUnit.getType() == UnitType.Terran_Marine) 
-				&& !aUnit.isTraining())
-				{
-					Marine1=aUnit;
-				}
-				if(aUnit.isIdle() && (aUnit.getType() == UnitType.Terran_Marine) 
-				&& !aUnit.isTraining()&& Marine2 !=Marine1)
-				{
-					Marine2=aUnit;
-				}
-				if(aUnit.isIdle() && (aUnit.getType() == UnitType.Terran_Marine) 
-				&& !aUnit.isTraining()&& Marine3 !=Marine2)
-				{
-					Marine3=aUnit;
-				}
-				if(aUnit.isIdle() && (aUnit.getType() == UnitType.Terran_Marine) 
-				&& !aUnit.isTraining()&& Marine4 !=Marine3)
-				{
-					Marine4=aUnit;
-				}
-				if(aUnit.isIdle() && (aUnit.getType() == UnitType.Terran_Marine) 
-				&& !aUnit.isTraining()&& Marine5 !=Marine4)
-				{
-					Marine5=aUnit;
-				}
-				if(aUnit.isIdle() && (aUnit.getType() == UnitType.Terran_Marine) 
-				&& !aUnit.isTraining()&& Marine6 !=Marine5)
-				{
-					Marine6=aUnit;
-				}
-				
-			}
-		}		
-		return new Unit[] {Marine1,Marine2,Marine3,Marine4,Marine5,Marine6};
-	}
-	private static List<Unit> Marines = new ArrayList<>();
+
+	static List<Unit> Marines = new ArrayList<>();
 	public static  void AttackUnitList()
 	{
 		Position choke = Mapping.chokePoint();
@@ -67,37 +22,58 @@ public class AttackUnits {
 		for(Unit aUnit: Core.selbst().getUnits())
 		{
 			if(aUnit.isIdle() && (aUnit.getType() == UnitType.Terran_Marine) 
-			&& !aUnit.isTraining() && !Marines.contains(aUnit))
+			&& !aUnit.isTraining() && !Marines.contains(aUnit)
+			&& aUnit.isCompleted())
 			{
 				Marines.add(aUnit);
-				if(aUnit.getPosition().getDistance(choke.getX(), choke.getY())>=2)
+				if(aUnit.getPosition().getDistance(choke.getX(), choke.getY())>=3)
 					aUnit.move(choke);
-				System.out.println(Marines);
 					
 			}
+			
 			if(aUnit.getHitPoints()<=0)
 			{
 				Marines.remove(aUnit);
 			}
-		
 		}
 	}
-	
-	public static void angreifen()
+	static List<Unit> squad = new ArrayList<>();
+	public static void schwadron()
 	{
-		for(Unit aUnit : getMarines())
+		TilePosition choke = Mapping.chokePoint().toTilePosition();
+		Core.Spiel().drawBoxMap(((choke.getX()-1)*32), ((choke.getY()-1)*32), (choke.getX()*32+32), (choke.getY()*32+32), Color.Red);
+		for(Unit aUnit: Marines)
 		{
-			if(aUnit.canAttack() && !aUnit.isTraining() && aUnit.isIdle())
+			if(aUnit.getPosition().toTilePosition().getDistance(choke.getX(), choke.getY())<=4
+				&& !squad.contains(aUnit))
 			{
-				aUnit.attack(Mapping.enemyBase);
+				squad.add(aUnit);
+				System.out.println(squad);
+			}
+			else if(aUnit.getPosition().toTilePosition().getDistance(choke.getX(), choke.getY())>4)
+			{
+				squad.remove(aUnit);
 			}
 		}
+		
 	}
-	
+	public static void attack()
+	{
+		for(Unit aUnit:squad)
+		{
+			aUnit.attack(Mapping.enemyBase);
+		}
+	}
 	public static List<Unit> getMarines() {
 		return Marines;
 	}
 	public static void setMarines(List<Unit> marines) {
 		Marines = marines;
+	}
+	public void onUnitDestroy(Unit aUnit) {
+		
+		if(Marines != null && Marines.contains(aUnit)){
+			Marines.remove(aUnit);
+		}
 	}
 }
