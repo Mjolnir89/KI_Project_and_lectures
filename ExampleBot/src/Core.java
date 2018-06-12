@@ -74,6 +74,10 @@ public class Core extends DefaultBWListener
 			//Einheiten.attackFirstUnit();
 			AttackUnits.AttackUnitList();
 			AttackUnits.schwadron();
+			AttackUnits.TrackPosition();
+			Enemy.saveEnemyUnits();
+			Enemy.saveEnemyPosition();
+			Einheiten.attackFirstUnit();
 			
 		}catch(Exception e)
 		{
@@ -139,8 +143,8 @@ public class Core extends DefaultBWListener
 		{
 			Buildings.baueGeb(0);
 		}
-		if(selbst().allUnitCount(barrack)<3
-		&& selbst().allUnitCount(supply)>=3)
+		if(selbst().allUnitCount(barrack)<2
+		&& selbst().allUnitCount(supply)>=6)
 		{
 			Buildings.baueGeb(1);
 		}
@@ -149,9 +153,15 @@ public class Core extends DefaultBWListener
 		{
 			Buildings.produziereEinheit(bauer);
 		}
-		if(!Buildings.isinproduction(UnitType.Terran_Marine))
+		if(!Buildings.isinproduction(Marine)
+		&& selbst().allUnitCount(Marine)<8)
 		{
-			Buildings.produziereEinheit(UnitType.Terran_Marine);
+			Buildings.produziereEinheit(Marine);
+		}
+		else if(selbst().allUnitCount(UnitType.Terran_Academy)>=1
+		&& selbst().allUnitCount(UnitType.Terran_Marine)>7)
+		{
+			Buildings.produziereEinheit(Fire);
 		}
 		Buildings.test();
 		if(!AttackUnits.getMarines().isEmpty())
@@ -162,7 +172,7 @@ public class Core extends DefaultBWListener
 		{
 			AttackUnits.attack();
 		}
-		if(selbst().allUnitCount(barrack)>=3)
+		if(selbst().allUnitCount(barrack)>=2)
 		{
 			Buildings.baueGeb(2);
 		}
@@ -171,6 +181,7 @@ public class Core extends DefaultBWListener
 		{
 			Buildings.baueGeb(3);
 		}
+		
 		return false;
 	
 	}
@@ -178,6 +189,9 @@ public class Core extends DefaultBWListener
 	private static UnitType supply = null;
 	private static UnitType barrack=null;
 	private static UnitType bauer = null;
+	private static UnitType Marine =null;
+	private static UnitType Fire =null;
+	private static UnitType medic = null;
 	private void defineRace()
 	{
 		if(selbst().getRace() == Race.Zerg)
@@ -190,6 +204,9 @@ public class Core extends DefaultBWListener
 			supply = UnitType.Terran_Supply_Depot;
 			barrack = UnitType.Terran_Barracks;
 			bauer= selbst().getRace().getWorker();
+			Marine = UnitType.Terran_Marine;
+			Fire = UnitType.Terran_Firebat;
+			medic = UnitType.Terran_Medic;
 		}
 			
 		else

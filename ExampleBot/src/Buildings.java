@@ -190,7 +190,7 @@ public class Buildings {
 		Core.Spiel().drawBoxMap(((int)choke.getX()*32), ((int)choke.getY()*32), ((int)choke.getX()*32+32), ((int)choke.getY()*32+32), Color.Blue);
 		for(Unit vUnit : AttackUnits.getMarines())
 		{
-			if(vUnit.getType() == UnitType.Terran_Marine
+			if((vUnit.getType() == UnitType.Terran_Marine || vUnit.getType() == UnitType.Terran_Firebat)
 			&& !vUnit.isTraining()
 			&& vUnit.isIdle()
 			&& vUnit.getPosition().getDistance(choke.getX(), choke.getY())>=2)

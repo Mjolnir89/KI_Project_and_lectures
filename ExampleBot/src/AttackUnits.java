@@ -21,7 +21,8 @@ public class AttackUnits {
 		
 		for(Unit aUnit: Core.selbst().getUnits())
 		{
-			if(aUnit.isIdle() && (aUnit.getType() == UnitType.Terran_Marine) 
+			if(aUnit.isIdle() && ((aUnit.getType() == UnitType.Terran_Marine)
+			|| (aUnit.getType() == UnitType.Terran_Firebat))		
 			&& !aUnit.isTraining() && !Marines.contains(aUnit)
 			&& aUnit.isCompleted())
 			{
@@ -48,7 +49,6 @@ public class AttackUnits {
 				&& !squad.contains(aUnit))
 			{
 				squad.add(aUnit);
-				System.out.println(squad);
 			}
 			else if(aUnit.getPosition().toTilePosition().getDistance(choke.getX(), choke.getY())>4)
 			{
@@ -74,6 +74,16 @@ public class AttackUnits {
 		
 		if(Marines != null && Marines.contains(aUnit)){
 			Marines.remove(aUnit);
+		}
+	}
+	static List<TilePosition> squadPosition = new ArrayList<>();
+	public static void TrackPosition()
+	{
+		for(Unit aUnit:Marines)
+		{
+			squadPosition.add(aUnit.getPosition().toTilePosition());
+			
+			
 		}
 	}
 }
