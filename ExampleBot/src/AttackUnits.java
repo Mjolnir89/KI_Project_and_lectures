@@ -5,6 +5,7 @@ import java.util.List;
 import bwapi.Color;
 import bwapi.Order;
 import bwapi.Position;
+import bwapi.TechType;
 import bwapi.Unit;
 import bwapi.UnitType;
 import bwapi.TilePosition;
@@ -22,11 +23,13 @@ public class AttackUnits {
 		for(Unit aUnit: Core.selbst().getUnits())
 		{
 			if(aUnit.isIdle() && ((aUnit.getType() == UnitType.Terran_Marine)
-			|| (aUnit.getType() == UnitType.Terran_Firebat))		
+			|| (aUnit.getType() == UnitType.Terran_Vulture)
+			|| (aUnit.getType() == UnitType.Terran_Siege_Tank_Tank_Mode))		
 			&& !aUnit.isTraining() && !Marines.contains(aUnit)
 			&& aUnit.isCompleted())
 			{
 				Marines.add(aUnit);
+				
 				if(aUnit.getPosition().getDistance(choke.getX(), choke.getY())>=3)
 					aUnit.move(choke);
 					
@@ -40,15 +43,18 @@ public class AttackUnits {
 	}
 	static List<Unit> squad = new ArrayList<>();
 	public static void schwadron()
-	{
+	{ 
 		TilePosition choke = Mapping.chokePoint().toTilePosition();
+		
 		Core.Spiel().drawBoxMap(((choke.getX()-1)*32), ((choke.getY()-1)*32), (choke.getX()*32+32), (choke.getY()*32+32), Color.Red);
+
 		for(Unit aUnit: Marines)
 		{
 			if(aUnit.getPosition().toTilePosition().getDistance(choke.getX(), choke.getY())<=4
 				&& !squad.contains(aUnit))
 			{
 				squad.add(aUnit);
+				System.out.println(squad);
 			}
 			else if(aUnit.getPosition().toTilePosition().getDistance(choke.getX(), choke.getY())>4)
 			{
@@ -57,12 +63,21 @@ public class AttackUnits {
 		}
 		
 	}
-	public static void attack()
+	public static boolean attack()
 	{
-		for(Unit aUnit:squad)
+		if(squad.size()>6 && !Einheiten.attackFirstUnit())
 		{
-			aUnit.attack(Mapping.enemyBase);
+			for(Unit aUnit:squad)
+			{
+				if(!aUnit.isUnderAttack())
+				{
+					aUnit.attack(Enemy.chokePoint().toPosition());
+				}
+				
+			}
+			return true;
 		}
+		return false;
 	}
 	public static List<Unit> getMarines() {
 		return Marines;
@@ -81,9 +96,20 @@ public class AttackUnits {
 	{
 		for(Unit aUnit:Marines)
 		{
-			squadPosition.add(aUnit.getPosition().toTilePosition());
-			
-			
+			squadPosition.add(aUnit.getPosition().toTilePosition());		
+		}
+	}
+	public static void spidermines()
+	{
+		for(Unit aUnit : Marines)
+		{
+			if(aUnit.getType() == UnitType.Terran_Vulture
+			&& aUnit.canUseTech(TechType.Spider_Mines)
+			&& aUnit.move(Mapping.enemyBase))
+			{
+				System.out.println("mines");
+				aUnit.useTech(TechType.Spider_Mines);
+			}
 		}
 	}
 }

@@ -59,6 +59,7 @@ public class Core extends DefaultBWListener
 		fillBuildings();
 		//Mapping.sortbuildTileList();
 		Mapping.scan(supply);
+		Enemy.chokePoint();
 	}
 
 
@@ -66,18 +67,22 @@ public class Core extends DefaultBWListener
 	{
 		try{
 			Buildings.produziereEinheit();
-			Einheiten.gatherMinerals();
+			Einheiten.gatherMinerals2();
 			Einheiten.gatherGas();			
 			//Mapping.listeAufraemen(supply);
 			Einheiten.bekommeAlleArbeiter();
 			testbuild2();
-			//Einheiten.attackFirstUnit();
 			AttackUnits.AttackUnitList();
 			AttackUnits.schwadron();
 			AttackUnits.TrackPosition();
+			AttackUnits.attack();
 			Enemy.saveEnemyUnits();
 			Enemy.saveEnemyPosition();
 			Einheiten.attackFirstUnit();
+			Buildings.test();
+			AttackUnits.spidermines();
+			Enemy.Center();
+			
 			
 		}catch(Exception e)
 		{
@@ -95,6 +100,9 @@ public class Core extends DefaultBWListener
 		buildings.add(1, barrack);
 		buildings.add(2, UnitType.Terran_Refinery);
 		buildings.add(3, UnitType.Terran_Academy);
+		buildings.add(4,UnitType.Terran_Factory);
+		buildings.add(5, UnitType.Terran_Machine_Shop);
+		buildings.add(6,UnitType.Terran_Armory);
 	}
 		
 	@Override
@@ -112,7 +120,18 @@ public class Core extends DefaultBWListener
 	public static void setBuildings(List<UnitType> buildings) {
 		Core.buildings = buildings;
 	}
-
+	/*
+	 * tvt tactic:
+	 * at 9/10 scv build supply
+	 * at 11/18 Barrack + 1 Marine
+	 * Refinery
+	 * 25/18 Supply
+	 * 15/26 Factory + machine shop
+	 * 23/26 supply
+	 * michineshop==1 research speed and mines
+	 * 28/34 supply
+	 */
+	
 	public  boolean testbuild2()
 	{
 		
@@ -128,58 +147,91 @@ public class Core extends DefaultBWListener
 		}
 		if(selbst().allUnitCount(supply)==1
 		&& !Buildings.isinproduction(bauer)
-		&& selbst().allUnitCount(bauer)<=12)
+		&& selbst().allUnitCount(bauer)<=11)
 		{
 			Buildings.produziereEinheit(bauer);
 		}
 		if(selbst().allUnitCount(supply)==1
-		&& selbst().allUnitCount(bauer)>=9
-		&& selbst().allUnitCount(barrack)<=1)
-		{
-			Buildings.baueGeb(1);	
-		}
-		if(selbst().allUnitCount(barrack)==1
-		&& selbst().allUnitCount(supply)<=8)
-		{
-			Buildings.baueGeb(0);
-		}
-		if(selbst().allUnitCount(barrack)<2
-		&& selbst().allUnitCount(supply)>=6)
+		&& selbst().allUnitCount(bauer)>=11
+		&& selbst().allUnitCount(barrack)<1)
 		{
 			Buildings.baueGeb(1);
+			Buildings.baueGeb(2);
 		}
-		if(selbst().allUnitCount(barrack)==1
-		&& selbst().allUnitCount(bauer)<=18)
-		{
-			Buildings.produziereEinheit(bauer);
-		}
-		if(!Buildings.isinproduction(Marine)
-		&& selbst().allUnitCount(Marine)<8)
+		if(selbst().allUnitCount(Marine)<1
+		&& selbst().allUnitCount(barrack)>=1)
 		{
 			Buildings.produziereEinheit(Marine);
 		}
-		else if(selbst().allUnitCount(UnitType.Terran_Academy)>=1
-		&& selbst().allUnitCount(UnitType.Terran_Marine)>7)
+		if(selbst().allUnitCount(barrack)>=1
+		&& selbst().allUnitCount(supply)<2)
 		{
-			Buildings.produziereEinheit(Fire);
+			Buildings.baueGeb(0);
 		}
-		Buildings.test();
-		if(!AttackUnits.getMarines().isEmpty())
+		if(selbst().allUnitCount(bauer)<16
+		&& selbst().allUnitCount(UnitType.Terran_Refinery)>=1)
+		{
+			Buildings.produziereEinheit(bauer);
+		}
+		if(selbst().allUnitCount(bauer)>=15
+		&& selbst().allUnitCount(UnitType.Terran_Factory)<1)
+		{
+			Buildings.baueGeb(4);
+		}
+		
+		if(selbst().allUnitCount(UnitType.Terran_Factory)>=1
+		&& selbst().allUnitCount(UnitType.Terran_Machine_Shop)<1)
+		{
+			Buildings.baueGeb(5);			
+		}
+		if((selbst().allUnitCount(UnitType.Terran_Machine_Shop)>=1)
+			&& selbst().allUnitCount(UnitType.Terran_Vulture)<4)
+		{
+			
+			Buildings.produziereEinheit(UnitType.Terran_Vulture);
+			//Vulture speed boost
+			Buildings.erforsche(UpgradeType.Ion_Thrusters);
+		}
+		if(selbst().allUnitCount(UnitType.Terran_Machine_Shop)>=1
+		&& selbst().allUnitCount(UnitType.Terran_Factory)<2)
+		{
+			Buildings.baueGeb(4);
+		}
+		if(selbst().allUnitCount(UnitType.Terran_Machine_Shop)>=1
+		&& selbst().supplyTotal()-selbst().supplyUsed()<8)
+		{
+			Buildings.baueGeb(0);
+		}
+		if(selbst().allUnitCount(UnitType.Terran_Machine_Shop)>=1
+		&& selbst().allUnitCount(UnitType.Terran_Armory)<1)
+		{
+			Buildings.baueGeb(6);
+		}
+		if(selbst().getUpgradeLevel(UpgradeType.Ion_Thrusters)>0)
+		{
+			//Vulture Spider mines
+			Buildings.erforsche(TechType.Tank_Siege_Mode);
+		}
+		if(selbst().hasResearched(TechType.Spider_Mines))
+		{
+			AttackUnits.spidermines();
+		}
+		if(selbst().allUnitCount(UnitType.Terran_Armory)<=1)
+		{
+			Buildings.erforsche(UpgradeType.Terran_Vehicle_Weapons);
+		}
+		if(selbst().getUpgradeLevel(UpgradeType.Terran_Vehicle_Weapons)>0)
+		{
+
+			Buildings.erforsche(UpgradeType.Terran_Vehicle_Plating);
+		}
+		if(!AttackUnits.Marines.isEmpty())
 		{
 			Mapping.scout();
 		}
-		if(AttackUnits.squad.size()>5)
+		if(selbst().allUnitCount(UnitType.Terran_Siege_Tank_Tank_Mode)<=6)
 		{
-			AttackUnits.attack();
-		}
-		if(selbst().allUnitCount(barrack)>=2)
-		{
-			Buildings.baueGeb(2);
-		}
-		if(selbst().allUnitCount(UnitType.Terran_Refinery)>=1
-		&& selbst().allUnitCount(UnitType.Terran_Academy)<1)
-		{
-			Buildings.baueGeb(3);
+			Buildings.produziereEinheit(UnitType.Terran_Siege_Tank_Tank_Mode);
 		}
 		
 		return false;

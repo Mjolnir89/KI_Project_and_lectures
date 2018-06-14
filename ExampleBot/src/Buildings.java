@@ -138,7 +138,7 @@ public class Buildings {
 		Unit bauer2 = Einheiten.getArbeiter().get(2);
 		TilePosition buildtile= Mapping.getNextFromList(geb);
 		if(!geb.isBuilding() 
-		|| geb.mineralPrice()> Core.selbst().minerals()
+		|| geb.mineralPrice()> getCurrentMinerals()
 		|| geb.gasPrice() > Core.selbst().gas())
 		{
 			return false;
@@ -146,7 +146,7 @@ public class Buildings {
 			
 		if(buildtile!=null )
 		{	
-			if(nummer==0 && bauer.getOrder() != Order.PlaceBuilding)
+			if((nummer==0 || nummer==6)&& bauer.getOrder() != Order.PlaceBuilding)
 			{
 				
 				//System.out.println(bauer.getID()+"\t"+buildtile+"\t"+geb+"\t"+Center().getDistance(buildtile));
@@ -154,11 +154,22 @@ public class Buildings {
 				bauer.build(geb, buildtile);
 			}
 				
-			else if((nummer==1 || nummer==3) && bauer.getOrder() != Order.PlaceBuilding)
+			else if((nummer==1 || nummer==4) && bauer2.getOrder() != Order.PlaceBuilding)
 			{
 				//System.out.println(bauer2.getID()+"\t"+buildtile+"\t"+geb+"\t"+Center().getDistance(buildtile));
 				bauer2.build(geb,buildtile);
-			}	
+			}
+			
+			else if(nummer==5)
+			{
+				for(Unit aUnit : Core.selbst().getUnits())
+				{
+					if (aUnit.getType() == UnitType.Terran_Factory && aUnit.canBuildAddon())
+					{
+						aUnit.buildAddon(UnitType.Terran_Machine_Shop);
+					}
+				}
+			}
 		}
 		if(nummer == 2)
 		{
@@ -187,11 +198,11 @@ public class Buildings {
 	public static void test()
 	{	
 		Position choke = Mapping.chokePoint();
-		Core.Spiel().drawBoxMap(((int)choke.getX()*32), ((int)choke.getY()*32), ((int)choke.getX()*32+32), ((int)choke.getY()*32+32), Color.Blue);
 		for(Unit vUnit : AttackUnits.getMarines())
 		{
-			if((vUnit.getType() == UnitType.Terran_Marine || vUnit.getType() == UnitType.Terran_Firebat)
+			if((vUnit.getType() == UnitType.Terran_Marine || vUnit.getType() == UnitType.Terran_Vulture)
 			&& !vUnit.isTraining()
+			&& vUnit.isCompleted()
 			&& vUnit.isIdle()
 			&& vUnit.getPosition().getDistance(choke.getX(), choke.getY())>=2)
 			{
@@ -208,6 +219,18 @@ public class Buildings {
 			if(einheit.getType().isMineralField()
 			|| einheit.getType() == UnitType.Resource_Vespene_Geyser
 			|| einheit.getType() == Core.selbst().getRace().getRefinery())
+			{
+				return false;
+			}
+		}
+		return true;
+	}
+	public static boolean sindKeineGebaudeInDerNahe(Position position)
+	{
+		for(Unit einheit : Core.Spiel().getUnitsInRadius(position, 2*32))
+		{
+			if(einheit.getType() == UnitType.Buildings
+			|| einheit.getType() == UnitType.Factories)
 			{
 				return false;
 			}

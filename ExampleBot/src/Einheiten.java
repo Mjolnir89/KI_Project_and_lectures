@@ -65,7 +65,7 @@ public class Einheiten {
 	public static int gasCount()
 	{
 		int counter=0;
-		for(Unit unit: Core.selbst().getUnits())
+		for(Unit unit: arbeiter)
 		{
 			if(unit.getType() == UnitType.Terran_SCV  &&  unit.isGatheringGas())
 			{
@@ -131,27 +131,67 @@ public class Einheiten {
 			}
 		}
 	}
-	public static void attackFirstUnit()
+	static private List<Unit> minerals = new ArrayList<>();
+	static int i = 0;
+	public static void gatherMinerals2() {
+		for (Unit einheit : Core.selbst().getUnits()) {
+			if (einheit.getType().isWorker() && einheit.isIdle()
+					&& !einheit.isSelected()) {
+				Unit Headquarter = null;
+				for (Unit PotentialHeadquarter : Core.selbst().getUnits()) {
+					if (PotentialHeadquarter.getType().isResourceDepot()) {
+						if (Headquarter == null
+								|| Headquarter.getDistance(einheit) > PotentialHeadquarter
+										.getDistance(einheit)) {
+							Headquarter = PotentialHeadquarter;
+						}
+					}
+				}
+				// sollte nur einmal aufgerufen werden beim start
+				if (Headquarter != null) {
+					for (Unit Potentialminiralkristall : BWTA
+							.getNearestBaseLocation(Headquarter.getPosition())
+							.getMinerals()) {
+						if (!minerals.contains(Potentialminiralkristall))
+							minerals.add(Potentialminiralkristall);
+
+					}
+					
+					einheit.gather(minerals.get(i%8));
+					System.out.println(i%8);
+					i++;
+					if(i>=8) i = 0;
+					}
+			
+				}
+			
+			}
+			
+		}
+	public static boolean attackFirstUnit()
 	{
 		Unit enemyUnit=null;
 		
 		for(Unit aUnit: Core.Spiel().getAllUnits())
 		{
-			if(aUnit.getPlayer().isEnemy(Core.selbst()))
+			if(aUnit.getPlayer().isEnemy(Core.selbst()) && aUnit.isVisible())
 			{
 				enemyUnit=aUnit;
 			}
 		}
-		if(enemyUnit !=null)
+		if(enemyUnit !=null && enemyUnit.isVisible())
 		{
-			for(Unit aUnit : Core.selbst().getUnits())
+			for(Unit aUnit : AttackUnits.Marines)
 			{
-				if(aUnit.getType().canAttack() && aUnit.isIdle())
+				if(aUnit.getType().canAttack() )
 				{
 					aUnit.attack(enemyUnit.getPosition());
+					
 				}
 			}
+			return true;
 		}
+		return false;
 	}
 	
 	//List fuer ARbeiter, die fertig produziert sind
@@ -168,6 +208,10 @@ public class Einheiten {
 				bauer = aUnit;
 				arbeiter.add(bauer);
 				Buildings.delaytimer(120);
+			}
+			else if(aUnit.getHitPoints()<=0)
+			{
+				arbeiter.remove(aUnit);
 			}
 		}
 		

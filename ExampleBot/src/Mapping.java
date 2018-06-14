@@ -51,11 +51,13 @@ public class Mapping {
 				if(Core.Spiel().canBuildHere(new TilePosition(i,j), gebauede)
 				 &&(Core.Spiel().isVisible(new TilePosition(i,j)))	
 				 &&Core.Spiel().isExplored(new TilePosition(i,j))
-				 && Buildings.sindKeineRessourcenInDerNaehe(new TilePosition(i,j).toPosition()))
+				 && Buildings.sindKeineRessourcenInDerNaehe(new TilePosition(i,j).toPosition())
+				 && Buildings.sindKeineGebaudeInDerNahe(new TilePosition(i,j).toPosition()))
 				
 				{
 					
 					BuildTileList.add(new TilePosition(i,j));
+					
 					
 				}
 					
@@ -71,19 +73,19 @@ public class Mapping {
 			buildTile =aPosition;
 			
 			double distance = Center.getDistance(aPosition.getX(), aPosition.getY());
-			if(Core.Spiel().canBuildHere(buildTile, geb) && Core.Spiel().isExplored(buildTile) && distance<=10)
+			if(Core.Spiel().canBuildHere(buildTile, geb) && Core.Spiel().isExplored(buildTile) && distance<=10 && Buildings.sindKeineGebaudeInDerNahe(buildTile.toPosition()))
 			{
 				//System.out.println("BauPlatz1");
 				Core.Spiel().drawBoxMap(((int)buildTile.getX()*32), ((int)buildTile.getY()*32), ((int)buildTile.getX()*32+32), ((int)buildTile.getY()*32+32), Color.Green);
 					break;
 			}
-			else if(Core.Spiel().canBuildHere(buildTile, geb) && Core.Spiel().isExplored(buildTile) && distance<15 && distance>10)
+			else if(Core.Spiel().canBuildHere(buildTile, geb) && Core.Spiel().isExplored(buildTile) && distance<15 && distance>10&& Buildings.sindKeineGebaudeInDerNahe(buildTile.toPosition()))
 			{
 				//System.out.println("BauPlatz2");
 				Core.Spiel().drawBoxMap(((int)buildTile.getX()*32), ((int)buildTile.getY()*32), ((int)buildTile.getX()*32+32), ((int)buildTile.getY()*32+32), Color.Blue);
 					break;					
 			}
-			else if(Core.Spiel().canBuildHere(buildTile, geb) && Core.Spiel().isExplored(buildTile) && distance<20 && distance>=15)
+			else if(Core.Spiel().canBuildHere(buildTile, geb) && Core.Spiel().isExplored(buildTile) && distance<20 && distance>=15 && Buildings.sindKeineGebaudeInDerNahe(buildTile.toPosition()))
 			{
 				//System.out.println(Core.Spiel().canBuildHere(buildTile, geb) + "\t" + Core.Spiel().isExplored(buildTile));
 				Core.Spiel().drawBoxMap(((int)buildTile.getX()*32), ((int)buildTile.getY()*32), ((int)buildTile.getX()*32+32), ((int)buildTile.getY()*32+32), Color.Red);
@@ -111,9 +113,10 @@ public class Mapping {
 			if(choke.getCenter().toTilePosition().getDistance(start.getX(), start.getY())<10)
 			{
 				sammeln = choke.getCenter().toTilePosition();
-				
+				Core.Spiel().drawBoxMap(((int)sammeln.getX()*32), ((int)sammeln.getY()*32), ((int)sammeln.getX()*32+32), ((int)sammeln.getY()*32+32), Color.Brown);
 			}
-			else if(choke.getCenter().toTilePosition().getDistance(start.getX(), start.getY())<20)
+			else if(choke.getCenter().toTilePosition().getDistance(start.getX(), start.getY())<20
+				&& choke.getCenter().toTilePosition().getDistance(start.getX(), start.getY())>=10)
 			{
 				sammeln = choke.getCenter().toTilePosition();
 			}
@@ -125,19 +128,16 @@ public class Mapping {
 	
 	static Position enemyBase=null;
 	static Unit scout=null;
-	public static void scout()
+	public static Unit scout()
 	{
 		if( scout == null ){
 			Unit aUnit = AttackUnits.getMarines().get(0);
 				if(aUnit.getType()== UnitType.Terran_Marine
 				&& aUnit.isIdle())
 				{
-					scout = aUnit;
-										
+					scout = aUnit;						
 				}
 			}
-		
-		
 		BaseLocation unexploredLocation=null;
 		
 		for(BaseLocation aLocation: BWTA.getStartLocations())
@@ -148,13 +148,18 @@ public class Mapping {
 				enemyBase=aLocation.getPosition();
 			}
 		}	
-		if(scout!=null && unexploredLocation !=null && !scout.attack(unexploredLocation.getPosition()))
+		if(scout!=null && !scout.isUnderAttack() &&unexploredLocation !=null && !scout.attack(unexploredLocation.getPosition()))
 		{
 			System.out.println("Scout");
-			scout.attack(unexploredLocation.getPosition());	
-			
+			scout.attack(unexploredLocation.getPosition());
+			if(scout.isUnderAttack() && scout.getHitPoints()>0)
+			{
+				scout.move(chokePoint());
+			}
 		}
 		
+		else return null;
+		return scout;
 	}
 	
 	
