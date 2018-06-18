@@ -156,10 +156,16 @@ public class Buildings {
 				
 			else if((nummer==1 || nummer==4) && bauer2.getOrder() != Order.PlaceBuilding)
 			{
-				//System.out.println(bauer2.getID()+"\t"+buildtile+"\t"+geb+"\t"+Center().getDistance(buildtile));
 				bauer2.build(geb,buildtile);
+				//7System.out.println(bauer2.getID()+"\t"+buildtile+"\t"+geb+"\t"+Center().getDistance(buildtile));
+				
 			}
-			
+			else if(nummer == 7 )
+			{
+				Unit bauer3 = Einheiten.getArbeiter().get(3);
+				bauer3.build(geb, buildtile);
+			}
+			//Extension von Factories
 			else if(nummer==5)
 			{
 				for(Unit aUnit : Core.selbst().getUnits())
@@ -195,23 +201,8 @@ public class Buildings {
 		else return false;
 	}
 
-	public static void test()
-	{	
-		Position choke = Mapping.chokePoint();
-		for(Unit vUnit : AttackUnits.getMarines())
-		{
-			if((vUnit.getType() == UnitType.Terran_Marine || vUnit.getType() == UnitType.Terran_Vulture)
-			&& !vUnit.isTraining()
-			&& vUnit.isCompleted()
-			&& vUnit.isIdle()
-			&& vUnit.getPosition().getDistance(choke.getX(), choke.getY())>=2)
-			{
-				vUnit.move(Mapping.chokePoint());
-			}
-		}
 	
-	}
-
+	//Nicht im Farmweg bauen
 	public static boolean sindKeineRessourcenInDerNaehe(Position position)
 	{
 		for(Unit einheit : Core.Spiel().getUnitsInRadius(position, 3*32))
@@ -225,13 +216,18 @@ public class Buildings {
 		}
 		return true;
 	}
+	//Vermeidung von Einmauern von eigenen Einheiten
 	public static boolean sindKeineGebaudeInDerNahe(Position position)
 	{
-		for(Unit einheit : Core.Spiel().getUnitsInRadius(position, 2*32))
+		for(Unit einheit : Core.Spiel().getUnitsInRadius(new Position(position.getX()+2,position.getY()), 2*32))
 		{
 			if(einheit.getType() == UnitType.Buildings
-			|| einheit.getType() == UnitType.Factories)
+			|| einheit.getType() == UnitType.Terran_Barracks
+			|| einheit.getType() == UnitType.Terran_Factory
+			|| einheit.getType() == UnitType.Terran_Supply_Depot
+			|| einheit.getType() == UnitType.Terran_Command_Center)
 			{
+				//System.out.println(einheit.getUnitsInRadius(2*32));
 				return false;
 			}
 		}

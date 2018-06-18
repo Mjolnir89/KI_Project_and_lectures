@@ -2,11 +2,13 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import bwapi.Color;
 import bwapi.Order;
 import bwapi.Position;
 import bwapi.TilePosition;
 import bwapi.Unit;
 import bwapi.UnitType;
+import bwapi.WeaponType;
 import bwta.BWTA;
 import bwta.BaseLocation;
 
@@ -55,7 +57,9 @@ public class Einheiten {
 					&&(gasCount()<2))
 					{
 						
-							einheit.gather(gas);
+							arbeiter.get(5).gather(gas);
+							arbeiter.get(6).gather(gas);
+							arbeiter.get(7).gather(gas);
 						
 					}
 				}
@@ -76,61 +80,7 @@ public class Einheiten {
 		return counter;
 		
 	}
-	public static void gatherMinerals()
-	{
-		for(Unit einheit : Core.selbst().getUnits())
-		{
-			if(einheit.getType().isWorker()
-			&& einheit.isIdle()
-			&& !einheit.isSelected())
-			{
-				Unit Headquarter = null;
-				for(Unit PotentialHeadquarter: Core.selbst().getUnits())
-				{
-					if(PotentialHeadquarter.getType().isResourceDepot())
-					{
-						if(Headquarter == null
-						|| Headquarter.getDistance(einheit)> PotentialHeadquarter.getDistance(einheit))
-						{
-							Headquarter=PotentialHeadquarter;
-						}
-					}
-				}
-				Unit miniralkristall = null;
-				if(Headquarter !=null)
-				{
-					for(Unit Potentialminiralkristall : BWTA.getNearestBaseLocation(Headquarter.getPosition()).getMinerals())
-					{
-						if(miniralkristall == null
-						|| miniralkristall.getDistance(einheit)> Potentialminiralkristall.getDistance(einheit))
-						{
-							miniralkristall=Potentialminiralkristall;
-						}
-					}
-				}
-				if(miniralkristall == null)
-				{
-					for(Unit Potentialminiralkristall: Core.Spiel().neutral().getUnits())
-					{
-						if(Potentialminiralkristall.getType().isMineralField())
-						{
-							if(miniralkristall == null
-							|| miniralkristall.getDistance(einheit)> Potentialminiralkristall.getDistance(einheit))
-							{
-								System.out.println(Potentialminiralkristall.getPosition());
-								miniralkristall= Potentialminiralkristall;
-							}
-						}
-					}
-				}
-				if(miniralkristall != null)
-				{
-					einheit.gather(miniralkristall);				
-				}
-						
-			}
-		}
-	}
+
 	static private List<Unit> minerals = new ArrayList<>();
 	static int i = 0;
 	public static void gatherMinerals2() {
@@ -158,7 +108,6 @@ public class Einheiten {
 					}
 					
 					einheit.gather(minerals.get(i%8));
-					System.out.println(i%8);
 					i++;
 					if(i>=8) i = 0;
 					}
@@ -183,17 +132,74 @@ public class Einheiten {
 		{
 			for(Unit aUnit : AttackUnits.Marines)
 			{
-				if(aUnit.getType().canAttack() )
+				if(aUnit.getType().canAttack())
 				{
-					aUnit.attack(enemyUnit.getPosition());
+					aUnit.attack(Enemy.enemieUnits.get(0).getPosition());
 					
 				}
 			}
 			return true;
 		}
+		
 		return false;
 	}
-	
+	public static void attackWhenSeen()
+	{
+		for(Unit aUnit:AttackUnits.Marines)
+		{
+			int i=0;
+			if(!Enemy.enemieUnits.isEmpty() 
+			&& Enemy.enemieUnits.get(0).isVisible()
+			&& Enemy.enemieUnits.get(0).getPosition().getDistance(Mapping.chokePoint())<3)
+			{
+				if(aUnit.getType() == UnitType.Terran_Marine)
+				{
+					Core.Spiel().drawBoxMap(aUnit.getUnitsInWeaponRange(WeaponType.Gauss_Rifle).get(0).getX()*32, 
+							aUnit.getUnitsInWeaponRange(WeaponType.Gauss_Rifle).get(0).getY()*32, 
+							aUnit.getUnitsInWeaponRange(WeaponType.Gauss_Rifle).get(0).getX()*32+32,
+							aUnit.getUnitsInWeaponRange(WeaponType.Gauss_Rifle).get(0).getY()*32+32, Color.Green);
+					aUnit.attack(aUnit.getUnitsInWeaponRange(WeaponType.Gauss_Rifle).get(0));
+				}
+				else if(aUnit.getType() == UnitType.Terran_Vulture)
+				{
+					Core.Spiel().drawBoxMap(aUnit.getUnitsInWeaponRange(WeaponType.Fragmentation_Grenade).get(0).getX()*32, 
+							aUnit.getUnitsInWeaponRange(WeaponType.Fragmentation_Grenade).get(0).getY()*32, 
+							aUnit.getUnitsInWeaponRange(WeaponType.Fragmentation_Grenade).get(0).getX()*32+32,
+							aUnit.getUnitsInWeaponRange(WeaponType.Fragmentation_Grenade).get(0).getY()*32+32, Color.Green);
+					aUnit.attack(aUnit.getUnitsInWeaponRange(WeaponType.Fragmentation_Grenade).get(0));
+				}
+				//fragmentation granade für vulture
+				
+			}
+			else if((!Enemy.enemieUnits.isEmpty()
+			&& Enemy.enemieUnits.get(0).isVisible()
+			&& Enemy.enemieUnits.get(0).getPosition().getDistance(Mapping.chokePoint())<3)
+			&& Enemy.enemieUnits.get(i).getHitPoints()<=0)
+			{
+				aUnit.attack(Enemy.chokePoint().toPosition());
+			}
+		}
+		for(Unit aUnit:AttackUnits.tanks)
+		{
+			int i=0;
+			if(!Enemy.enemieUnits.isEmpty() 
+			&& Enemy.enemieUnits.get(0).getPosition().getDistance(Mapping.chokePoint())<3)
+			{
+				aUnit.attack(aUnit.getUnitsInWeaponRange(WeaponType.Arclite_Cannon).get(0));
+				Core.Spiel().drawBoxMap(aUnit.getUnitsInWeaponRange(WeaponType.Arclite_Cannon).get(0).getX()*32, 
+				aUnit.getUnitsInWeaponRange(WeaponType.Arclite_Cannon).get(0).getY()*32, 
+				aUnit.getUnitsInWeaponRange(WeaponType.Arclite_Cannon).get(0).getX()*32+32,
+				aUnit.getUnitsInWeaponRange(WeaponType.Arclite_Cannon).get(0).getY()*32+32, Color.Green);
+				System.out.println(aUnit.getGroundWeaponCooldown());
+			}
+			else if((!Enemy.enemieUnits.isEmpty() 
+			&& Enemy.enemieUnits.get(0).getPosition().getDistance(Mapping.chokePoint())<3)
+			&& Enemy.enemieUnits.get(i).getHitPoints()<=0)
+			{
+				aUnit.attack(Enemy.chokePoint().toPosition());
+			}
+		}
+	}
 	//List fuer ARbeiter, die fertig produziert sind
 	private static List<Unit> arbeiter = new ArrayList<>();
 	public static void bekommeAlleArbeiter()

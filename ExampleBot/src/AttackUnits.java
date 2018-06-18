@@ -23,8 +23,8 @@ public class AttackUnits {
 		for(Unit aUnit: Core.selbst().getUnits())
 		{
 			if(aUnit.isIdle() && ((aUnit.getType() == UnitType.Terran_Marine)
-			|| (aUnit.getType() == UnitType.Terran_Vulture)
-			|| (aUnit.getType() == UnitType.Terran_Siege_Tank_Tank_Mode))		
+			|| (aUnit.getType() == UnitType.Terran_Vulture
+			|| (aUnit.getType() == UnitType.Terran_Medic)))		
 			&& !aUnit.isTraining() && !Marines.contains(aUnit)
 			&& aUnit.isCompleted())
 			{
@@ -41,6 +41,33 @@ public class AttackUnits {
 			}
 		}
 	}
+	static List<Unit> tanks = new ArrayList<>();
+	public static void taketanks()
+	{
+		Position choke = Mapping.chokePoint();
+		for(Unit aUnit: Core.selbst().getUnits())
+		{
+			if(aUnit.isIdle() 
+			&& aUnit.getType() == UnitType.Terran_Siege_Tank_Tank_Mode		
+			&& !aUnit.isTraining() 
+			&& !tanks.contains(aUnit)
+			&& aUnit.isCompleted())
+			{
+				tanks.add(aUnit);
+				
+				if(aUnit.getPosition().getDistance(choke.getX(), choke.getY())>=3)
+					aUnit.move(choke);
+				//System.out.println(aUnit.getPosition().toTilePosition());
+					
+			}
+			
+			if(aUnit.getHitPoints()<=0)
+			{
+				tanks.remove(aUnit);
+			}
+		}
+		
+	}
 	static List<Unit> squad = new ArrayList<>();
 	public static void schwadron()
 	{ 
@@ -54,7 +81,8 @@ public class AttackUnits {
 				&& !squad.contains(aUnit))
 			{
 				squad.add(aUnit);
-				System.out.println(squad);
+				
+				//System.out.println(aUnit.getGroundWeaponCooldown());
 			}
 			else if(aUnit.getPosition().toTilePosition().getDistance(choke.getX(), choke.getY())>4)
 			{
@@ -63,15 +91,36 @@ public class AttackUnits {
 		}
 		
 	}
+	public static void moveToChokePoint()
+	{	
+		Position choke = Mapping.chokePoint();
+		for(Unit vUnit : AttackUnits.getMarines())
+		{
+			if((vUnit.canAttack())
+			&& !vUnit.isTraining()
+			&& vUnit.isCompleted()
+			&& vUnit.isIdle()
+			&& !vUnit.isUnderAttack()
+			&& vUnit.getPosition().getDistance(choke.getX(), choke.getY())>=3)
+			{
+				vUnit.move(Mapping.chokePoint());
+			}
+		}
+	
+	}
 	public static boolean attack()
 	{
-		if(squad.size()>6 && !Einheiten.attackFirstUnit())
+		if(squad.size()>10 && !Einheiten.attackFirstUnit())
 		{
 			for(Unit aUnit:squad)
 			{
 				if(!aUnit.isUnderAttack())
 				{
 					aUnit.attack(Enemy.chokePoint().toPosition());
+				}
+				else
+				{
+					aUnit.attack(aUnit.getPosition());
 				}
 				
 			}
@@ -109,6 +158,34 @@ public class AttackUnits {
 			{
 				System.out.println("mines");
 				aUnit.useTech(TechType.Spider_Mines);
+			}
+		}
+	}
+	//Belagerungsmodus von Panzern
+	public static void tank_Siege_Mode()
+	{
+		for(Unit aUnit : tanks)
+		{
+			if(aUnit.getType() == UnitType.Terran_Siege_Tank_Tank_Mode
+			&& aUnit.canUseTech(TechType.Tank_Siege_Mode)
+			&& !aUnit.attack(aUnit.getPosition())
+			&& aUnit.getDistance(Mapping.chokePoint())<4)
+			{
+				System.out.println("Sieg Mode");
+				aUnit.useTech(TechType.Tank_Siege_Mode);
+			}
+		}
+	}
+	//Marine Stimpacks
+	public static void stimpacks()
+	{
+		for(Unit aUnit: Marines)
+		{
+			if(aUnit.getType() == UnitType.Terran_Marine
+			&& aUnit.isUnderAttack()
+			&& aUnit.canUseTech(TechType.Stim_Packs))
+			{
+				aUnit.useTech(TechType.Stim_Packs);
 			}
 		}
 	}

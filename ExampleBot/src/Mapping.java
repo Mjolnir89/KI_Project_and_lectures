@@ -73,19 +73,23 @@ public class Mapping {
 			buildTile =aPosition;
 			
 			double distance = Center.getDistance(aPosition.getX(), aPosition.getY());
-			if(Core.Spiel().canBuildHere(buildTile, geb) && Core.Spiel().isExplored(buildTile) && distance<=10 && Buildings.sindKeineGebaudeInDerNahe(buildTile.toPosition()))
+			if(Core.Spiel().canBuildHere(buildTile, geb) 
+			&& Core.Spiel().isExplored(buildTile)
+			&& distance<=10
+			&& Buildings.sindKeineGebaudeInDerNahe(aPosition.toPosition())
+			&& Buildings.sindKeineRessourcenInDerNaehe(aPosition.toPosition()))
 			{
 				//System.out.println("BauPlatz1");
 				Core.Spiel().drawBoxMap(((int)buildTile.getX()*32), ((int)buildTile.getY()*32), ((int)buildTile.getX()*32+32), ((int)buildTile.getY()*32+32), Color.Green);
 					break;
 			}
-			else if(Core.Spiel().canBuildHere(buildTile, geb) && Core.Spiel().isExplored(buildTile) && distance<15 && distance>10&& Buildings.sindKeineGebaudeInDerNahe(buildTile.toPosition()))
+			else if(Core.Spiel().canBuildHere(buildTile, geb) && Core.Spiel().isExplored(buildTile) && distance<15 && distance>10&& Buildings.sindKeineGebaudeInDerNahe(aPosition.toPosition()))
 			{
 				//System.out.println("BauPlatz2");
 				Core.Spiel().drawBoxMap(((int)buildTile.getX()*32), ((int)buildTile.getY()*32), ((int)buildTile.getX()*32+32), ((int)buildTile.getY()*32+32), Color.Blue);
 					break;					
 			}
-			else if(Core.Spiel().canBuildHere(buildTile, geb) && Core.Spiel().isExplored(buildTile) && distance<20 && distance>=15 && Buildings.sindKeineGebaudeInDerNahe(buildTile.toPosition()))
+			else if(Core.Spiel().canBuildHere(buildTile, geb) && Core.Spiel().isExplored(buildTile) && distance<20 && distance>=15 && Buildings.sindKeineGebaudeInDerNahe(aPosition.toPosition()))
 			{
 				//System.out.println(Core.Spiel().canBuildHere(buildTile, geb) + "\t" + Core.Spiel().isExplored(buildTile));
 				Core.Spiel().drawBoxMap(((int)buildTile.getX()*32), ((int)buildTile.getY()*32), ((int)buildTile.getX()*32+32), ((int)buildTile.getY()*32+32), Color.Red);
@@ -155,6 +159,10 @@ public class Mapping {
 			if(scout.isUnderAttack() && scout.getHitPoints()>0)
 			{
 				scout.move(chokePoint());
+			}
+			else
+			{
+				return scout;
 			}
 		}
 		
