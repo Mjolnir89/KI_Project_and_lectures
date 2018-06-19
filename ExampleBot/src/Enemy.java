@@ -22,7 +22,7 @@ public class Enemy {
 				if(eUnit.getHitPoints()>0 && eUnit.isVisible() && !enemieUnits.contains(eUnit))
 				{
 					enemieUnits.add(eUnit);
-					System.out.println("EnemyList"+ enemieUnits);
+					//System.out.println("EnemyList"+ enemieUnits);
 					
 				}
 				else if(eUnit.getHitPoints()<=0 || !eUnit.isVisible())

@@ -24,13 +24,14 @@ public class AttackUnits {
 		{
 			if(aUnit.isIdle() && ((aUnit.getType() == UnitType.Terran_Marine)
 			|| (aUnit.getType() == UnitType.Terran_Vulture
-			|| (aUnit.getType() == UnitType.Terran_Medic)))		
+			|| (aUnit.getType() == UnitType.Terran_Medic))
+			|| (aUnit.getType() == UnitType.Terran_Siege_Tank_Tank_Mode))		
 			&& !aUnit.isTraining() && !Marines.contains(aUnit)
 			&& aUnit.isCompleted())
 			{
 				Marines.add(aUnit);
-				
-				if(aUnit.getPosition().getDistance(choke.getX(), choke.getY())>=3)
+				//System.out.println(Marines);
+				if(aUnit.getPosition().getDistance(choke.getX(), choke.getY())>=4)
 					aUnit.move(choke);
 					
 			}
@@ -55,7 +56,7 @@ public class AttackUnits {
 			{
 				tanks.add(aUnit);
 				
-				if(aUnit.getPosition().getDistance(choke.getX(), choke.getY())>=3)
+				if(aUnit.getPosition().getDistance(choke.getX(), choke.getY())>=4)
 					aUnit.move(choke);
 				//System.out.println(aUnit.getPosition().toTilePosition());
 					
@@ -77,14 +78,14 @@ public class AttackUnits {
 
 		for(Unit aUnit: Marines)
 		{
-			if(aUnit.getPosition().toTilePosition().getDistance(choke.getX(), choke.getY())<=4
+			if(aUnit.getPosition().toTilePosition().getDistance(choke.getX(), choke.getY())<=5
 				&& !squad.contains(aUnit))
 			{
 				squad.add(aUnit);
 				
 				//System.out.println(aUnit.getGroundWeaponCooldown());
 			}
-			else if(aUnit.getPosition().toTilePosition().getDistance(choke.getX(), choke.getY())>4)
+			else if(aUnit.getPosition().toTilePosition().getDistance(choke.getX(), choke.getY())>6)
 			{
 				squad.remove(aUnit);
 			}
@@ -101,16 +102,16 @@ public class AttackUnits {
 			&& vUnit.isCompleted()
 			&& vUnit.isIdle()
 			&& !vUnit.isUnderAttack()
-			&& vUnit.getPosition().getDistance(choke.getX(), choke.getY())>=3)
+			&& vUnit.getPosition().getDistance(choke.getX(), choke.getY())>=4)
 			{
-				vUnit.move(Mapping.chokePoint());
+				vUnit.attack(Mapping.chokePoint());
 			}
 		}
 	
 	}
 	public static boolean attack()
 	{
-		if(squad.size()>10 && !Einheiten.attackFirstUnit())
+		if(squad.size()>12 && !Einheiten.attackFirstUnit())
 		{
 			for(Unit aUnit:squad)
 			{
@@ -162,6 +163,7 @@ public class AttackUnits {
 		}
 	}
 	//Belagerungsmodus von Panzern
+	
 	public static void tank_Siege_Mode()
 	{
 		for(Unit aUnit : tanks)
@@ -169,13 +171,15 @@ public class AttackUnits {
 			if(aUnit.getType() == UnitType.Terran_Siege_Tank_Tank_Mode
 			&& aUnit.canUseTech(TechType.Tank_Siege_Mode)
 			&& !aUnit.attack(aUnit.getPosition())
-			&& aUnit.getDistance(Mapping.chokePoint())<4)
+			&& aUnit.getDistance(Mapping.chokePoint())<5)
 			{
 				System.out.println("Sieg Mode");
 				aUnit.useTech(TechType.Tank_Siege_Mode);
 			}
 		}
 	}
+	
+	
 	//Marine Stimpacks
 	public static void stimpacks()
 	{

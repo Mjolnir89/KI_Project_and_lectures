@@ -112,22 +112,25 @@ public class Mapping {
 	{
 		TilePosition start = Buildings.Center();
 		TilePosition sammeln=null;
-		for(Chokepoint choke : BWTA.getChokepoints())
-		{
-			if(choke.getCenter().toTilePosition().getDistance(start.getX(), start.getY())<10)
-			{
-				sammeln = choke.getCenter().toTilePosition();
-				Core.Spiel().drawBoxMap(((int)sammeln.getX()*32), ((int)sammeln.getY()*32), ((int)sammeln.getX()*32+32), ((int)sammeln.getY()*32+32), Color.Brown);
-			}
-			else if(choke.getCenter().toTilePosition().getDistance(start.getX(), start.getY())<20
-				&& choke.getCenter().toTilePosition().getDistance(start.getX(), start.getY())>=10)
-			{
-				sammeln = choke.getCenter().toTilePosition();
-			}
-		}
+		TilePosition barrack =null;
+		sammeln = bwta.BWTA.getNearestChokepoint(start).getCenter().toTilePosition();
+			
+
 		if(sammeln !=null)
 			return sammeln.toPosition();
-		else return start.toPosition();
+		else// if(sammeln == null)  
+		{
+			for(Unit aUnit: Core.selbst().getUnits())
+			{
+				if(aUnit.getType() == UnitType.Terran_Barracks && Core.selbst().allUnitCount(UnitType.Terran_Barracks)>0)
+				{
+					barrack= aUnit.getPosition().toTilePosition();
+				}
+			}
+			return barrack.toPosition();
+		}
+		
+		
 	}
 	
 	static Position enemyBase=null;

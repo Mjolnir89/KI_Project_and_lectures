@@ -100,14 +100,14 @@ public class Einheiten {
 				// sollte nur einmal aufgerufen werden beim start
 				if (Headquarter != null) {
 					for (Unit Potentialminiralkristall : BWTA
-							.getNearestBaseLocation(Headquarter.getPosition())
+							.getNearestBaseLocation(Buildings.Center())//getNearestBaseLocation(Headquarter.getPosition())
 							.getMinerals()) {
 						if (!minerals.contains(Potentialminiralkristall))
 							minerals.add(Potentialminiralkristall);
 
 					}
 					
-					einheit.gather(minerals.get(i%8));
+					einheit.gather(minerals.get(i%7));
 					i++;
 					if(i>=8) i = 0;
 					}
@@ -128,7 +128,7 @@ public class Einheiten {
 				enemyUnit=aUnit;
 			}
 		}
-		if(enemyUnit !=null && enemyUnit.isVisible())
+		if(enemyUnit !=null && enemyUnit.isVisible() && !AttackUnits.Marines.isEmpty())
 		{
 			for(Unit aUnit : AttackUnits.Marines)
 			{
